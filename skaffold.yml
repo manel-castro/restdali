@@ -24,3 +24,13 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: manelcastro/fe-client
+      context: ./fe-client
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual:
+          - src: "/**/*.ts"
+            dest: .
+          - src: "/**/*.tsx"
+            dest: .

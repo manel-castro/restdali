@@ -28,6 +28,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: be-simply-srv
+                name: fe-client-srv
                 port:
-                  number: 9002
+                  number: 3000

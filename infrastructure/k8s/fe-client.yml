@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe-client-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fe-client
+  template:
+    metadata:
+      labels:
+        app: fe-client
+    spec:
+      containers:
+        - name: fe-client
+          # image: us.gcr.io/ticketing-dev-359710/be-auth
+          image: manelcastro/fe-client
+          env:
+            - name: JWT_KEY
+              value: "123456"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fe-client-srv
+spec:
+  selector:
+    app: fe-client
+  type: ClusterIP
+  ports:
+    - name: fe-client
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
