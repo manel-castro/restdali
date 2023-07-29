@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: be-contact-form-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: be-contact-form
+  template:
+    metadata:
+      labels:
+        app: be-contact-form
+    spec:
+      containers:
+        - name: be-contact-form
+          # image: us.gcr.io/ticketing-dev-359710/be-auth
+          image: manelcastro/be-contact-form
+          env:
+            - name: JWT_KEY
+              value: "123456"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: be-contact-form-srv
+spec:
+  selector:
+    app: be-contact-form
+  type: ClusterIP
+  ports:
+    - name: be-contact-form
+      protocol: TCP
+      port: 9000
+      targetPort: 9000

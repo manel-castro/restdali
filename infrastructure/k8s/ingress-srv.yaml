@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /api/users/
+            pathType: Prefix
+            backend:
+              service:
+                name: be-auth-srv
+                port:
+                  number: 9001
+          - path: /auth|public/
+            pathType: Prefix
+            backend:
+              service:
+                name: be-contact-form-srv
+                port:
+                  number: 9000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: be-simply-srv
+                port:
+                  number: 9002

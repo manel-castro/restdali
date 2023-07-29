@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-be-contact-form # Sets Deployment name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-be-contact-form
+  template:
+    metadata:
+      labels:
+        app: postgres-be-contact-form
+    spec:
+      containers:
+        - name: postgres-be-contact-form
+          image: postgres:10.1 # Sets Image
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432 # Exposes container port
+          envFrom:
+            - configMapRef:
+                name: postgres-config-be-contact-form
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb-be-contact-form
+      volumes:
+        - name: postgredb-be-contact-form
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim-be-contact-form

@@ -1,0 +1,29 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume-be-contact-form # Sets PV's name
+  labels:
+    type: local # Sets PV's type to local
+    app: postgres-be-contact-form
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi # Sets PV Volume
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data1"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv-claim-be-contact-form # Sets name of PVC
+  labels:
+    app: postgres-be-contact-form
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany # Sets read and write access
+  resources:
+    requests:
+      storage: 5Gi # Sets volume size
