@@ -24,6 +24,14 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: manelcastro/be-backoffice
+      context: ./be-backoffice
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
     - image: manelcastro/fe-client
       context: ./fe-client
       docker:

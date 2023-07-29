@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-be-backoffice # Sets Deployment name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-be-backoffice
+  template:
+    metadata:
+      labels:
+        app: postgres-be-backoffice
+    spec:
+      containers:
+        - name: postgres-be-backoffice
+          image: postgres:10.1 # Sets Image
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432 # Exposes container port
+          envFrom:
+            - configMapRef:
+                name: postgres-be-backoffice-config
+          volumeMounts:
+            - mountPath: /var/lib/postgres-be-backoffice/data
+              name: postgredb
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-be-backoffice-pv-claim

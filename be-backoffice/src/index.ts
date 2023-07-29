@@ -38,7 +38,7 @@ const start = async () => {
 
   app.use(errorHandler);
 
-  const PORT = process.env.PORT || 9002;
+  const PORT = process.env.PORT || 9000;
   app.listen(PORT, function () {
     console.log("CORS-enabled web server listening on port " + PORT);
   });

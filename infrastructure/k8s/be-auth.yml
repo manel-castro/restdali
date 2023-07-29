@@ -19,6 +19,8 @@ spec:
           env:
             - name: JWT_KEY
               value: "123456"
+            - name: PORT
+              value: "9001"
 
 ---
 apiVersion: v1

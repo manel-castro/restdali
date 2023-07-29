@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-be-backoffice # Sets service name
+  labels:
+    app: postgres-be-backoffice # Labels and Selectors
+spec:
+  type: NodePort # Sets service type
+  ports:
+    - port: 5432 # Sets port to run the postgres-be-backoffice application
+  selector:
+    app: postgres-be-backoffice
