@@ -21,7 +21,7 @@ import { Settings } from "./settings";
 const landing: { title: string; href: string; description: string }[] = [
   {
     title: "Landing",
-    href: "/docs/primitives/alert-dialog",
+    href: "/paginas/landing",
     description: "Editar los elementos de la página principal.",
   },
 ];
@@ -45,6 +45,13 @@ export function Navbar() {
         style={{ display: "flex", justifyContent: "space-around" }}
       >
         <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link href="/" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                Inicio
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Paginas</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -78,9 +85,9 @@ export function Navbar() {
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/docs" legacyBehavior passHref>
+            <Link href="/form" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Forms
+                Formulario de contacto
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
