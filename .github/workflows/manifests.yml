@@ -35,9 +35,9 @@ jobs:
         uses: Azure/aks-set-context@v1
         with:
           # Resource Group Name
-          resource-group: K8s-testings
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
           # AKS Cluster Name
-          cluster-name: k8s-testing-cluster
+          cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
           # AKS Cluster Subscription
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
