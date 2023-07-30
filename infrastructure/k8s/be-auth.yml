@@ -15,12 +15,16 @@ spec:
       containers:
         - name: be-auth
           # image: us.gcr.io/ticketing-dev-359710/be-auth
-          image: manelcastro/be-auth
+          image: manelcastro/be-auth:latest
           env:
             - name: JWT_KEY
               value: "123456"
             - name: PORT
               value: "9001"
+            - name: DATABASE_URL
+              value: "postgresql://postgres:postgres@postgres:5432/postgresdb?schema=public&connect_timeout=300"
+            - name: ADMIN_SIGNUP_KEY
+              value: "123456"
 
 ---
 apiVersion: v1

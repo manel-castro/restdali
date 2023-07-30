@@ -1,5 +1,6 @@
 import Image from "next/image";
+import { PaginasAccordion } from "../../(components)/paginas-accordion";
 
 export default function Home() {
-  return <div>HELLO FROM LANDING</div>;
+  return <PaginasAccordion />;
 }
