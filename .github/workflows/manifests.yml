@@ -41,4 +41,4 @@ jobs:
           # AKS Cluster Subscription
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - run: kubectl apply -f infrastructure/k8s
+      - run: kubectl apply -f infrastructure/k8s && kubectl apply -f infrastructure/k8s-prod
