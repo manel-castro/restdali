@@ -8,7 +8,7 @@ export const PagesHeader = () => {
 
   return (
     <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <div style={{ display: "flex", gap: 20 }}>
+      <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
         <div>Páginas</div>
         <div>
           <Badge>{languageInUse.label}</Badge>

@@ -8,5 +8,6 @@ spec:
   type: NodePort # Sets service type
   ports:
     - port: 5432 # Sets port to run the postgres-be-backoffice application
+      nodePort: 30008
   selector:
     app: postgres-be-backoffice

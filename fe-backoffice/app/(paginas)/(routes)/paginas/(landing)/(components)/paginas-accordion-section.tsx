@@ -5,9 +5,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ChangeEvent, useState } from "react";
 
-interface Field {
+export interface Field {
   fieldId: string;
   fieldType: "text";
   fieldLabel: string;
@@ -47,30 +49,37 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
   };
 
   return (
-    <AccordionItem value="item-1">
+    <AccordionItem value={title}>
       <AccordionTrigger>{title}</AccordionTrigger>
       <AccordionContent>
-        <div>Aquí puedes editar los valores para la seccion {title}:</div>
-        <div>
-          {fields.map((field, index) => {
-            return (
-              <div key={index} style={{ display: "flex" }}>
-                <div>{field.fieldLabel}</div>
-                <input
-                  onChange={(e) => onChangeField(e, index)}
-                  // React useState doesn't detect nested objects changes
-                  defaultValue={field.fieldValue}
-                ></input>
-              </div>
-            );
-          })}
-          <Button
-            onClick={() => {
-              onSubmit(title, fields);
-            }}
-          >
-            Guardar
-          </Button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div>Aquí puedes editar los valores para la seccion {title}:</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {fields.map((field, index) => {
+              return (
+                <Label
+                  key={index}
+                  style={{ display: "flex", gap: 20, alignItems: "center" }}
+                >
+                  {field.fieldLabel}
+                  <Input
+                    onChange={(e) => onChangeField(e, index)}
+                    // React useState doesn't detect nested objects changes
+                    defaultValue={field.fieldValue}
+                  ></Input>
+                </Label>
+              );
+            })}
+          </div>
+          <div>
+            <Button
+              onClick={() => {
+                onSubmit(title, fields);
+              }}
+            >
+              Guardar
+            </Button>
+          </div>
         </div>
       </AccordionContent>
     </AccordionItem>

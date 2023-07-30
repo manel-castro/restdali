@@ -1,5 +1,5 @@
-import { currentUser } from "../../middlewares/current-user";
-import { requireAuth } from "../../middlewares/require-auth";
+import { currentUser } from "../../../middlewares/current-user";
+import { requireAuth } from "../../../middlewares/require-auth";
 import { GetFormsRouter } from "./forms";
 
 const express = require("express");
@@ -12,6 +12,6 @@ const router = express.Router();
  */
 router.use(currentUser);
 router.use(requireAuth);
-router.use("/auth", GetFormsRouter);
+router.use("/backoffice", GetFormsRouter);
 
-export { router as AuthRouter };
+export { router as BackofficeRouter };

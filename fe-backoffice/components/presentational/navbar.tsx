@@ -40,9 +40,17 @@ const menu: { title: string; href: string; description: string }[] = [
 
 export function Navbar() {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+      }}
+    >
       <NavigationMenu
-        style={{ display: "flex", justifyContent: "space-around" }}
+        style={{
+          display: "flex",
+          justifyContent: "space-around",
+        }}
       >
         <NavigationMenuList>
           <NavigationMenuItem>

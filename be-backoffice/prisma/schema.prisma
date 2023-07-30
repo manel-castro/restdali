@@ -10,11 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model ContactForm {
-  id        String   @id @default(uuid())
-  title     String
-  content   String?
-  seen      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Field {
+  id         String    @id @default(uuid())
+  fieldType  String
+  fieldLabel String
+  fieldValue String
+  Section    Section[]
+}
+
+model Section {
+  id            String   @id @default(uuid())
+  title         String
+  initialFields Field    @relation(fields: [fieldId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  fieldId       String
 }

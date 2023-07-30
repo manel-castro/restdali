@@ -3,9 +3,9 @@ const express = require("express");
 var cors = require("cors");
 import cookieSession from "cookie-session";
 import { errorHandler } from "./middlewares/error-handler";
-import { AuthRouter } from "./routes/auth/";
-import { PublicRouter } from "./routes/public";
+
 import * as redis from "redis";
+import { ApiRouter } from "./routes/api";
 
 export const redisClient = redis.createClient({
   url: "redis://redis",
@@ -33,8 +33,7 @@ const start = async () => {
 
   app.use(cors());
 
-  app.use(AuthRouter);
-  app.use(PublicRouter);
+  app.use(ApiRouter);
 
   app.use(errorHandler);
 
