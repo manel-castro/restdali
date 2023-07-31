@@ -1,6 +1,6 @@
 import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
-import { GetFormsRouter } from "./forms";
+import { GetFormsRouter } from "./sections";
 
 const express = require("express");
 
