@@ -87,7 +87,7 @@ export const Tabs = ({ tabs = mockTabs }) => {
             </Description>
           </div>
           <div style={{ marginTop: 20 }}>
-            <Link href={currentTabData?.buttonLink}>
+            <Link href={currentTabData?.buttonLink || ""}>
               <Button $outline>{currentTabData?.button}</Button>
             </Link>
           </div>

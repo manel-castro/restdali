@@ -5,10 +5,10 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prestart:dev": "npx prisma migrate dev --name init",
+    "prestart:dev": "npx prisma migrate deploy",
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc",
-    "prestart": "npx prisma migrate dev --name init",
+    "prestart": "npx prisma migrate deploy",
     "start": "npm run build && node build/index.js"
   },
   "author": "",

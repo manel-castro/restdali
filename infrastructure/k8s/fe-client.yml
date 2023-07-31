@@ -16,6 +16,7 @@ spec:
         - name: fe-client
           # image: us.gcr.io/ticketing-dev-359710/be-auth
           image: manelcastro/fe-client
+
 ---
 apiVersion: v1
 kind: Service

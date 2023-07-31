@@ -1,11 +1,9 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear } from "@fortawesome/free-solid-svg-icons";
 
 import {
   NavigationMenu,
@@ -21,19 +19,19 @@ import { Settings } from "./settings";
 const landing: { title: string; href: string; description: string }[] = [
   {
     title: "Landing",
-    href: "/paginas/landing",
+    href: "/backoffice/paginas/landing",
     description: "Editar los elementos de la página principal.",
   },
 ];
 const menu: { title: string; href: string; description: string }[] = [
   {
     title: "Menú de día",
-    href: "/menu/noche",
+    href: "/backoffice/menu/noche",
     description: "Editar el menú de noche.",
   },
   {
     title: "Menú de noche",
-    href: "/menu/dia",
+    href: "/backoffice/menu/dia",
     description: "Editar el menú de día.",
   },
 ];
@@ -101,7 +99,9 @@ export function Navbar() {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <Settings />
+      <div style={{ display: "flex" }}>
+        <Settings />
+      </div>
     </div>
   );
 }

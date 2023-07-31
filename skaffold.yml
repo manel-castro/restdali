@@ -12,7 +12,7 @@ build:
     - image: manelcastro/be-contact-form
       context: ./be-contact-form
       docker:
-        dockerfile: Dockerfile.dev
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*.ts"
@@ -20,7 +20,7 @@ build:
     - image: manelcastro/be-auth
       context: ./be-auth
       docker:
-        dockerfile: Dockerfile.dev
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*.ts"
@@ -28,15 +28,25 @@ build:
     - image: manelcastro/be-backoffice
       context: ./be-backoffice
       docker:
-        dockerfile: Dockerfile.dev
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: manelcastro/fe-backoffice
+      context: ./fe-backoffice
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "/**/*.ts"
+            dest: .
+          - src: "/**/*.tsx"
+            dest: .
     - image: manelcastro/fe-client
       context: ./fe-client
       docker:
-        dockerfile: Dockerfile.dev
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "/**/*.ts"

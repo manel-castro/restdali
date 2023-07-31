@@ -1,4 +1,16 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  basePath: "/backoffice",
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/backoffice",
+        basePath: false,
+        permanent: false,
+      },
+    ];
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

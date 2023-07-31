@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe-backoffice-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fe-backoffice
+  template:
+    metadata:
+      labels:
+        app: fe-backoffice
+    spec:
+      containers:
+        - name: fe-backoffice
+          # image: us.gcr.io/ticketing-dev-359710/be-auth
+          image: manelcastro/fe-backoffice
+          env:
+            - name: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+              value: pk_test_ZXBpYy1oZWRnZWhvZy02Ni5jbGVyay5hY2NvdW50cy5kZXYk
+            - name: CLERK_SECRET_KEY
+              value: sk_test_APkxU12JUcEjhFVfhFO75zidkTd8b9glpk48ZaICRT
+            - name: NEXT_PUBLIC_CLERK_SIGN_IN_URL
+              value: /backoffice/sign-in
+            - name: NEXT_PUBLIC_CLERK_SIGN_UP_URL
+              value: /backoffice/sign-up
+            - name: NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL
+              value: /backoffice
+            - name: NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL
+              value: /backoffice
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fe-backoffice-srv
+spec:
+  selector:
+    app: fe-backoffice
+  type: ClusterIP
+  ports:
+    - name: fe-backoffice
+      protocol: TCP
+      port: 3003
+      targetPort: 3000
