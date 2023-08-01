@@ -51,13 +51,13 @@ const LoginComponent = () => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     try {
-      const login = await axios.post("/sign-in", values)
+      const login = await axios.post("/api/users/signin", values)
 
 
       console.log("login: ", login)
 
     } catch (e) {
-
+      console.log("error login ing:", e)
     }
   }
 

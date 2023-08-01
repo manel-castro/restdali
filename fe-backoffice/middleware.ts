@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   console.log("test middleware");
 
-  const userToken = request.cookies.get("Session")?.value;
+  const userToken = request.cookies.get("session")?.value;
 
   if (!userToken) {
     return NextResponse.redirect(
