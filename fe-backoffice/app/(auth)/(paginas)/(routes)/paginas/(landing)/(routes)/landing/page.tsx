@@ -1,5 +1,5 @@
 import { PaginasAccordion } from "../../(components)/paginas-accordion";
 
-export default function Home() {
+export default function LandingPage() {
   return <PaginasAccordion />;
 }
