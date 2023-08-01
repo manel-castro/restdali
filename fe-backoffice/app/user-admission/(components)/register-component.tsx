@@ -28,6 +28,7 @@ const RegisterComponent = () => {
         <Label style={{ width: "100%" }}>
           Correo
           <Input
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Introduzca su correo electrónico..."
@@ -36,6 +37,7 @@ const RegisterComponent = () => {
         <Label style={{ width: "100%" }}>
           Contraseña
           <Input
+            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Introduzca la contraseña..."
@@ -44,6 +46,7 @@ const RegisterComponent = () => {
         <Label style={{ width: "100%" }}>
           Repita contraseña
           <Input
+            required
             value={repeatPassword}
             onChange={(e) => setRepeatPassword(e.target.value)}
             placeholder="Repita la contraseña..."
@@ -52,6 +55,7 @@ const RegisterComponent = () => {
         <Label style={{ width: "100%" }}>
           Clave de administrador
           <Input
+            required
             value={adminKey}
             onChange={(e) => setAdminKey(e.target.value)}
             placeholder="Introduzca la clave de administrador..."
