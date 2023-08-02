@@ -5,11 +5,10 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prestart:dev": "npx prisma migrate deploy",
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc",
-    "prestart": "npx prisma migrate deploy",
-    "start": "npm run build && node build/index.js"
+    "start": "ts-node src/index.ts",
+    "typeorm": "typeorm-ts-node-commonjs"
   },
   "author": "",
   "license": "ISC",
@@ -24,18 +23,22 @@
     "express-validator": "7.0.1",
     "jsonwebtoken": "9.0.1",
     "node-nats-streaming": "^0.3.2",
-    "redis": "^4.6.7"
+    "pg": "^8.4.0",
+    "redis": "^4.6.7",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "0.3.17",
+    "typeorm-extension": "^3.0.1"
   },
   "devDependencies": {
     "@types/amqplib": "0.10.1",
     "@types/cookie-session": "^2.0.44",
     "@types/express": "4.17.17",
     "@types/jsonwebtoken": "^9.0.2",
-    "@types/node": "20.4.2",
+    "@types/node": "^16.11.10",
     "nodemon": "3.0.1",
     "prisma": "5.0.0",
     "rimraf": "5.0.1",
-    "ts-node": "10.9.1",
-    "typescript": "5.1.6"
+    "ts-node": "10.7.0",
+    "typescript": "4.5.2"
   }
 }

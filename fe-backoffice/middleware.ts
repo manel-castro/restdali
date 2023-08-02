@@ -10,13 +10,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(
       new URL("/backoffice/user-admission", request.url)
     );
-  } else {
-    return NextResponse.redirect(new URL("/backoffice", request.url));
   }
+  // else {
+  //   return NextResponse.redirect(new URL("/backoffice", request.url));
+  // }
 }
 
 export const config = {
-  matcher: ["/", "/paginas/landing"],
+  matcher: ["/", "/paginas/landing", "/paginas"],
   // matcher: [
   //   /*
   //    * Match all request paths except for the ones starting with:

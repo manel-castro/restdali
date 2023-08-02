@@ -1,8 +1,5 @@
 "use client";
-import axios from 'axios'
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,57 +11,75 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import * as z from "zod";
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(7, {
     message: "La constraseña tiene que tener por lo menos 7 caracters.",
   }),
-})
-
+});
 
 const LoginComponent = () => {
-  const [errors, setErrors] = useState([])
+  const router = useRouter();
+
 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: ""
+      password: "",
     },
-  })
+  });
 
+  const { toast } = useToast();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     try {
-      const login = await axios.post("/api/users/signin", values)
+      const login = await axios.post("/api/users/signin", values);
 
-
-      console.log("login: ", login)
-
+      router.push("/");
+      console.log("login: ", login);
     } catch (e) {
-      console.log("error login ing:", e)
+      const error = e as any;
+      console.log("error login ing:", e);
+      const errors = error.response.data.errors;
+      if (!errors) {
+        return toast({
+          variant: "destructive",
+          title: "Oh!, algo ha ido mal.",
+          description: "Ha habido un problema con la petición (error 001)",
+        });
+
+      }
+
+      return toast({
+        variant: "destructive",
+        title: "Oh!, algo ha ido mal.",
+        description: errors[0].message + " (error 002)",
+      });
     }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-
         <Card>
           <CardHeader>
             <CardTitle>Login</CardTitle>

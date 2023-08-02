@@ -12,44 +12,12 @@ interface ISection {
   initialFields: Field[];
 }
 
-const sections: ISection[] = [
-  {
-    title: "Hero",
-    initialFields: [
-      {
-        fieldId: "field1",
-        fieldType: "text",
-        fieldLabel: "Title",
-        fieldValue: "Initial title",
-      },
-      {
-        fieldId: "field1",
-        fieldType: "text",
-        fieldLabel: "WHATEVER ELSE",
-        fieldValue: "Initial title",
-      },
-      {
-        fieldId: "field1",
-        fieldType: "text",
-        fieldLabel: "WHATEVERWHATEVERWHATEVERWHATEVER",
-        fieldValue: "Initial title",
-      },
-    ],
-  },
-  {
-    title: "Tabs",
-    initialFields: [
-      {
-        fieldId: "field1",
-        fieldType: "text",
-        fieldLabel: "Title",
-        fieldValue: "Initial title",
-      },
-    ],
-  },
-];
+interface IPaginasAccordion {
+  sections: ISection[]
+}
 
-export function PaginasAccordion() {
+
+export const PaginasAccordion: React.FC<IPaginasAccordion> = ({ sections }) => {
   return (
     <Accordion type="single" collapsible className="w-full">
       {sections.map((section, index) => (

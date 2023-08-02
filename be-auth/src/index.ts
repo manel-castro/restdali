@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 var cors = require("cors");
-import cookieSession from "cookie-session";
+const cookieSession = require("cookie-session");
 import { errorHandler } from "./middlewares/error-handler";
 import { CurrentUserRouter } from "./routes/current-user";
 import { SigninRouter } from "./routes/signin";
@@ -9,6 +9,8 @@ import { SignupRouter } from "./routes/signup";
 
 import * as redis from "redis";
 import { VerifyAuthClusterRouter } from "./cluster-routes";
+import { AppDataSource } from "./data-source";
+import { createDatabase } from "typeorm-extension";
 
 export const redisClient = redis.createClient({
   url: "redis://redis",
@@ -22,6 +24,17 @@ const start = async () => {
   if (!process.env.JWT_KEY) {
     throw new Error("JWT_KEY must be defined");
   }
+
+  /**
+   * TYPEORM
+   */
+
+  AppDataSource.initialize()
+    .then(async () => {
+      await createDatabase({ ifNotExist: true });
+      console.log("Typeorm connected to postgres...");
+    })
+    .catch((error) => console.log("error connecting typeorm: ", error));
 
   /**
    * API REST

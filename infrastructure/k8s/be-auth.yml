@@ -25,6 +25,10 @@ spec:
               value: "postgresql://postgres:postgres@postgres:5432/postgresdb?schema=public&connect_timeout=300"
             - name: ADMIN_SIGNUP_KEY
               value: "123456"
+            - name: SUPER_ADMIN_SIGNUP_KEY
+              value: "654321"
+            - name: USER_SIGNUP_KEY
+              value: "111111"
 
 ---
 apiVersion: v1

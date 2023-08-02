@@ -3,9 +3,11 @@ import { body } from "express-validator";
 
 import jwt from "jsonwebtoken";
 import { validateRequest } from "../middlewares/validate-request";
-import { prisma } from "../prismaclient";
+
 import { BadRequestError } from "../errors/bad-request-error";
 import { Password } from "../services/password";
+import { User } from "../entities/user.entity";
+import { AppDataSource } from "../data-source";
 
 const router = express.Router();
 
@@ -22,24 +24,22 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
     console.log("test");
-
-    const existingUser = await prisma.user.findFirst({ where: { email } });
+    const userRepository = AppDataSource.getRepository(User);
+    const existingUser = await userRepository.findOne({ where: { email } });
 
     if (!existingUser) {
-      return next(new BadRequestError("Invalid credentials"));
+      return next(new BadRequestError("Credenciales invalidos"));
     }
 
-    console.log("existingUser.password: ", typeof existingUser.password);
+    // console.log("existingUser.password: ", typeof existingUser.password);
 
     const passwordsMatch = await Password.compare(
       existingUser.password,
       password
     );
 
-    console.log("password comprae");
-
     if (!passwordsMatch) {
-      return next(new BadRequestError("Invalid credentials"));
+      return next(new BadRequestError("Credenciales invalidos"));
     }
 
     // Generate JWT

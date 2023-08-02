@@ -8,6 +8,7 @@ import Cookies from 'js-cookie'
 import { Inter } from "next/font/google";
 import { ContextProvider } from "@/context/provider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ContextProvider>
           <div style={{ padding: 40 }}>{children}</div>
+          <Toaster />
         </ContextProvider>
       </body>
     </html>

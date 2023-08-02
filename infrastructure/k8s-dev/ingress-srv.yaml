@@ -24,7 +24,7 @@ spec:
                 name: be-contact-form-srv
                 port:
                   number: 9000
-          - path: /api/backoffice
+          - path: /api/backoffice_api
             pathType: Prefix
             backend:
               service:
