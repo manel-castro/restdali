@@ -7,7 +7,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChangeEvent, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { IAvailableLanguages } from "@/config/available-languages";
+import axios from "axios";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export interface Field {
   fieldId: string;
@@ -17,28 +20,28 @@ export interface Field {
 }
 
 interface IPaginasAccordionSection {
-  title?: string;
-  initialFields?: Field[];
+  title: string;
+  sectionId: string;
+  lang: IAvailableLanguages;
+  initialFields: Field[];
   onSubmit?: (title: string, newValues: Field[]) => void;
 }
 
 export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
-  title = "Hero",
-  initialFields = [
-    {
-      fieldId: "field1",
-      fieldType: "text",
-      fieldLabel: "Title",
-      fieldValue: "Initial title",
-    },
-  ],
+  title,
+  sectionId,
+  lang,
+  initialFields,
   onSubmit = (title, fields) => {
     console.log(title, JSON.stringify(fields, null, 1));
   },
 }) => {
   const [fields, setFields] = useState(initialFields);
+  const [creatingErrors, setCreatingErrors] = useState<{ message: string, field: string }[]>([]);
 
-  const onChangeField = (
+  const { toast } = useToast()
+
+  const onChangeFieldValue = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
@@ -47,6 +50,46 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
       return prev;
     });
   };
+  const onChangeFieldLabel = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    setFields((prev) => {
+      prev[index].fieldLabel = e.target.value;
+      return prev;
+    });
+  };
+
+  const onSave = () => { };
+
+
+  const onAddNewField = async () => {
+    console.log("lang: ", lang)
+    try {
+      await axios.post(`/api/backoffice/sections/${sectionId}/field`, {
+        fieldId: Math.floor(Math.random() * 10000),
+        // fieldType: "text",
+        fieldLabel: "New input",
+        fieldValue: "Initial value",
+        lang: lang.value,
+      });
+    } catch (E) {
+      console.log("error:", E);
+      const error = E as any
+      const messages = error.response.data.errors
+      setCreatingErrors(messages)
+
+    }
+  };
+
+  useEffect(() => {
+    if (!creatingErrors.length) return;
+
+    for (const error of creatingErrors) {
+      toast({ title: "Error", description: error.message, variant: "destructive" })
+    }
+
+  }, [creatingErrors])
 
   return (
     <AccordionItem value={title}>
@@ -61,15 +104,28 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
                   key={index}
                   style={{ display: "flex", gap: 20, alignItems: "center" }}
                 >
-                  {field.fieldLabel}
                   <Input
-                    onChange={(e) => onChangeField(e, index)}
+                    onChange={(e) => onChangeFieldLabel(e, index)}
+                    // React useState doesn't detect nested objects changes
+                    defaultValue={field.fieldLabel}
+                  ></Input>
+                  <Input
+                    onChange={(e) => onChangeFieldValue(e, index)}
                     // React useState doesn't detect nested objects changes
                     defaultValue={field.fieldValue}
                   ></Input>
                 </Label>
               );
             })}
+          </div>
+          <div>
+            <Button
+              onClick={() => {
+                onAddNewField();
+              }}
+            >
+              Add new field
+            </Button>
           </div>
           <div>
             <Button

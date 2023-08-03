@@ -4,19 +4,20 @@ import { validateRequest } from "../../../../middlewares/validate-request";
 import { prisma } from "../../../../prismaclient";
 
 import { BadRequestError } from "../../../../errors/bad-request-error";
+import { SectionFieldsRouter } from "./fields";
 const express = require("express");
 
 const router = express.Router();
+
+router.use("/sections", SectionFieldsRouter);
 
 router.get(
   "/sections",
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     // const { sectionName } = req.params;
-    const lang = (req.query.lang || "es") as string;
 
     const form = await prisma.section.findMany({
-      where: { lang },
       include: {
         initialFields: true,
       },
@@ -30,13 +31,14 @@ router.get(
   [param("id", "id needed").isString()],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
-    const lang = (req.query.lang || "es") as string;
     const { id } = req.params;
 
     const form = await prisma.section.findMany({
       where: {
         id,
-        lang,
+      },
+      include: {
+        initialFields: true,
       },
     });
 
@@ -46,17 +48,13 @@ router.get(
 
 router.post(
   "/section",
-  [
-    body("title", "title needed").isString(),
-    body("lang", "lang is needed").isString(),
-  ],
+  [body("title", "title needed").isString()],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { title, lang } = req.body;
+    const { title } = req.body;
     const existingSection = await prisma.section.findMany({
       where: {
         title,
-        lang,
       },
     });
 
@@ -67,7 +65,6 @@ router.post(
     const form = await prisma.section.create({
       data: {
         title,
-        lang,
       },
     });
 

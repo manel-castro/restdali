@@ -36,7 +36,7 @@ build:
     - image: manelcastro/fe-backoffice
       context: ./fe-backoffice
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         manual:
           - src: "/**/*.ts"
