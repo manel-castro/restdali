@@ -12,6 +12,12 @@ spec:
       labels:
         app: be-contact-form
     spec:
+      initContainers:
+      - name: check-db-ready-contact-form
+        image: postgres:9.6.5
+        command: ['sh', '-c', 
+          'until pg_isready -h postgres-be-contact-form -p 5432; 
+          do echo waiting for database; sleep 2; done;']
       containers:
         - name: be-contact-form
           # image: us.gcr.io/ticketing-dev-359710/be-auth

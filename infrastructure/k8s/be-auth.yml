@@ -12,10 +12,16 @@ spec:
       labels:
         app: be-auth
     spec:
+      initContainers:
+      - name: check-db-ready-auth
+        image: postgres:9.6.5
+        command: ['sh', '-c', 
+          'until pg_isready -h postgres -p 5432; 
+          do echo waiting for database; sleep 2; done;']
       containers:
         - name: be-auth
           # image: us.gcr.io/ticketing-dev-359710/be-auth
-          image: manelcastro/be-auth:latest
+          image: manelcastro/be-auth
           env:
             - name: JWT_KEY
               value: "123456"

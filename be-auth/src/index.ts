@@ -29,7 +29,7 @@ const start = async () => {
    * TYPEORM
    */
 
-  AppDataSource.initialize()
+  await AppDataSource.initialize()
     .then(async () => {
       await createDatabase({ ifNotExist: true });
       console.log("Typeorm connected to postgres...");

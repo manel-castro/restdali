@@ -1,4 +1,5 @@
 "use client";
+import { instance } from "@/app/axiosInstance";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,9 +36,10 @@ const formSchema = z.object({
 });
 
 const LoginComponent = () => {
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+
   const router = useRouter();
-
-
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,13 +49,12 @@ const LoginComponent = () => {
     },
   });
 
-  const { toast } = useToast();
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    setIsLoadingSubmit(true);
     try {
-      const login = await axios.post("/api/users/signin", values);
+      const login = await instance.post("/api/users/signin", values);
 
       router.push("/");
       console.log("login: ", login);
@@ -66,7 +68,6 @@ const LoginComponent = () => {
           title: "Oh!, algo ha ido mal.",
           description: "Ha habido un problema con la petición (error 001)",
         });
-
       }
 
       return toast({
@@ -74,6 +75,8 @@ const LoginComponent = () => {
         title: "Oh!, algo ha ido mal.",
         description: errors[0].message + " (error 002)",
       });
+    } finally {
+      setIsLoadingSubmit(false);
     }
   }
 
@@ -126,7 +129,9 @@ const LoginComponent = () => {
             />
           </CardContent>
           <CardFooter>
-            <Button>Continuar</Button>
+            <Button style={{ width: 150 }} disabled={isLoadingSubmit}>
+              {isLoadingSubmit ? <Spinner /> : "Continuar"}
+            </Button>
           </CardFooter>
         </Card>
       </form>

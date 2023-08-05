@@ -133,7 +133,7 @@ router.patch(
     check("fields.*.fieldValue", "initialField fieldValue is needed")
       .not()
       .isEmpty(),
-    body("fields.*.lang", "lang is needed").isString(),
+    
   ],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
@@ -151,15 +151,14 @@ router.patch(
     }
 
     for (const field of fields) {
-      const { fieldId, fieldValue, lang } = field as {
+      const { fieldId, fieldValue } = field as {
         fieldId: string;
         fieldValue: string;
-        lang: string;
+        
       };
       const existingField = await prisma.field.findFirst({
         where: {
           fieldId,
-          lang,
         },
       });
 

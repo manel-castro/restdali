@@ -1,4 +1,5 @@
 "use client";
+import { instance } from "@/app/axiosInstance";
 import {
   AccordionContent,
   AccordionItem,
@@ -7,8 +8,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { IAvailableLanguages } from "@/config/available-languages";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
 
@@ -17,6 +21,7 @@ export interface Field {
   fieldType: "text";
   fieldLabel: string;
   fieldValue: string;
+  lang: string;
 }
 
 interface IPaginasAccordionSection {
@@ -37,9 +42,14 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
   },
 }) => {
   const [fields, setFields] = useState(initialFields);
-  const [creatingErrors, setCreatingErrors] = useState<{ message: string, field: string }[]>([]);
+  const [refreshComponent, setRefreshComponent] = useState(0);
 
-  const { toast } = useToast()
+  const [IsLoadingCreateNeweField, setIsLoadingCreateNeweField] =
+    useState(false);
+
+  const [IsLoadingSaveForm, setIsLoadingSaveForm] = useState(false);
+
+  const { toast } = useToast();
 
   const onChangeFieldValue = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -60,36 +70,86 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
     });
   };
 
-  const onSave = () => { };
-
-
-  const onAddNewField = async () => {
-    console.log("lang: ", lang)
+  const onSave = async () => {
+    setIsLoadingSaveForm(true);
+    console.log("fields: ", fields);
     try {
-      await axios.post(`/api/backoffice/sections/${sectionId}/field`, {
-        fieldId: Math.floor(Math.random() * 10000),
-        // fieldType: "text",
-        fieldLabel: "New input",
-        fieldValue: "Initial value",
-        lang: lang.value,
+      await instance.patch(`/api/backoffice/sections/${sectionId}/fields`, {
+        fields,
       });
     } catch (E) {
       console.log("error:", E);
-      const error = E as any
-      const messages = error.response.data.errors
-      setCreatingErrors(messages)
-
+      const error = E as any;
+      const messages = error.response.data.errors;
+      toast({
+        title: "Error",
+        description: messages[0].message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingSaveForm(false);
     }
   };
 
-  useEffect(() => {
-    if (!creatingErrors.length) return;
+  const onAddNewField = async () => {
+    console.log("onAddNewField");
 
-    for (const error of creatingErrors) {
-      toast({ title: "Error", description: error.message, variant: "destructive" })
+    setIsLoadingCreateNeweField(true);
+    console.log("lang: ", lang);
+    const newField: Field = {
+      fieldId: Math.floor(Math.random() * 10000).toString(),
+      fieldType: "text",
+      fieldLabel: "New input",
+      fieldValue: "Initial value",
+      lang: lang.value,
+    };
+
+    try {
+      console.log("newField: ", newField);
+      await instance.post(
+        `/api/backoffice/sections/${sectionId}/field`,
+        newField
+      );
+      setFields((prev) => {
+        return [...prev, newField];
+      });
+    } catch (E) {
+      console.log("error:", E);
+      const error = E as any;
+      const messages = error.response.data.errors;
+      toast({
+        title: "Error while adding new field",
+        description: messages[0].message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingCreateNeweField(false);
     }
+  };
 
-  }, [creatingErrors])
+  const onDeleteField = async (fieldId: string) => {
+    try {
+      await instance.delete(`/api/backoffice/fields/${fieldId}`);
+
+      setFields((prev) => {
+        const index = prev.findIndex((item) => item.fieldId === fieldId);
+        console.log({ index, prev });
+
+        prev.splice(index, 1);
+        return prev;
+      });
+      setRefreshComponent((prev) => prev + 1);
+    } catch (E) {
+      console.log("error:", E);
+      const error = E as any;
+      const messages = error.response.data?.errors || ["Default error"];
+      toast({
+        title: "Error while deleting new field",
+        description: messages[0].message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <AccordionItem value={title}>
@@ -100,21 +160,29 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {fields.map((field, index) => {
               return (
-                <Label
-                  key={index}
-                  style={{ display: "flex", gap: 20, alignItems: "center" }}
-                >
-                  <Input
-                    onChange={(e) => onChangeFieldLabel(e, index)}
-                    // React useState doesn't detect nested objects changes
-                    defaultValue={field.fieldLabel}
-                  ></Input>
-                  <Input
-                    onChange={(e) => onChangeFieldValue(e, index)}
-                    // React useState doesn't detect nested objects changes
-                    defaultValue={field.fieldValue}
-                  ></Input>
-                </Label>
+                <div style={{ display: "flex" }}>
+                  <Label
+                    key={index}
+                    style={{ display: "flex", gap: 20, alignItems: "center" }}
+                  >
+                    <Input
+                      onChange={(e) => onChangeFieldLabel(e, index)}
+                      // React useState doesn't detect nested objects changes
+                      defaultValue={field.fieldLabel}
+                    ></Input>
+                    <Input
+                      onChange={(e) => onChangeFieldValue(e, index)}
+                      // React useState doesn't detect nested objects changes
+                      defaultValue={field.fieldValue}
+                    ></Input>
+                  </Label>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => onDeleteField(field.fieldId)}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </Button>
+                </div>
               );
             })}
           </div>
@@ -123,17 +191,19 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
               onClick={() => {
                 onAddNewField();
               }}
+              disabled={IsLoadingCreateNeweField}
+              style={{ width: 200 }}
             >
-              Add new field
+              {IsLoadingCreateNeweField ? <Spinner /> : "Añadir nuevo campo"}
             </Button>
           </div>
           <div>
             <Button
-              onClick={() => {
-                onSubmit(title, fields);
-              }}
+              style={{ width: 150 }}
+              onClick={onSave}
+              disabled={IsLoadingSaveForm}
             >
-              Guardar
+              {IsLoadingSaveForm ? <Spinner /> : "Guardar"}
             </Button>
           </div>
         </div>
