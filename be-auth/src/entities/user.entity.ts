@@ -6,7 +6,10 @@
 
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("User")
+@Entity({
+  name: "user",
+  // synchronize: true,
+})
 export class User {
   @PrimaryGeneratedColumn("uuid")
   id: number;

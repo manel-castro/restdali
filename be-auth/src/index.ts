@@ -30,8 +30,10 @@ const start = async () => {
    */
 
   await AppDataSource.initialize()
-    .then(async () => {
+    .then(async (DataSource) => {
       await createDatabase({ ifNotExist: true });
+
+      await DataSource.synchronize();
       console.log("Typeorm connected to postgres...");
     })
     .catch((error) => console.log("error connecting typeorm: ", error));

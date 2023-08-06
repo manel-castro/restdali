@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@paginas/common": "^1.0.15",
-    "@prisma/client": "5.0.0",
+    "@prisma/client": "^5.1.1",
     "amqplib": "0.10.3",
     "axios": "^1.4.0",
     "cookie-session": "2.0.0",
@@ -34,7 +34,7 @@
     "@types/jsonwebtoken": "9.0.2",
     "@types/node": "20.4.2",
     "nodemon": "3.0.1",
-    "prisma": "5.0.0",
+    "prisma": "^5.1.1",
     "rimraf": "5.0.1",
     "ts-node": "10.9.1",
     "typescript": "5.1.6"

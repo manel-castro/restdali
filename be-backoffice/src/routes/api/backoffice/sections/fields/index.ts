@@ -129,11 +129,12 @@ router.patch(
   "/:sectionId/fields",
   [param("sectionId", "Is badly formatted").isString()],
   [
-    check("fields.*.fieldId", "initialField fieldId is needed").not().isEmpty(),
-    check("fields.*.fieldValue", "initialField fieldValue is needed")
-      .not()
-      .isEmpty(),
-    
+    check("fields").isArray(),
+    check("fields.*.fieldId", "initialField fieldId is needed").isString(),
+    check(
+      "fields.*.fieldValue",
+      "initialField fieldValue is needed"
+    ).isString(),
   ],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
@@ -154,7 +155,6 @@ router.patch(
       const { fieldId, fieldValue } = field as {
         fieldId: string;
         fieldValue: string;
-        
       };
       const existingField = await prisma.field.findFirst({
         where: {

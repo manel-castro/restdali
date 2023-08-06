@@ -160,9 +160,8 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {fields.map((field, index) => {
               return (
-                <div style={{ display: "flex" }}>
+                <div key={index} style={{ display: "flex" }}>
                   <Label
-                    key={index}
                     style={{ display: "flex", gap: 20, alignItems: "center" }}
                   >
                     <Input

@@ -47,7 +47,7 @@ router.post(
       {
         id: existingUser.id,
         email: existingUser.email,
-        role: existingUser.role
+        role: existingUser.role,
       },
       process.env.JWT_KEY!
     );
@@ -55,7 +55,9 @@ router.post(
     // Store it on the session object
     req.session = { jwt: userJwt }; // redefine this obj because type definitions
 
-    res.status(200).send({ email: existingUser.email });
+    res
+      .status(200)
+      .send({ email: existingUser.email, role: existingUser.role });
   }
 );
 
