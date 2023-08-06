@@ -24,7 +24,10 @@ export default function RootLayout({
     (async () => {
       const currentUser = await instance
         .get("/api/users/currentuser")
-        .then((res) => res.data)
+        .then((res) => {
+          console.log("currentuser res: ", res);
+          return res.data.currentUser;
+        })
         .catch((e) => {
           console.log("currentuser error: ", e);
         });

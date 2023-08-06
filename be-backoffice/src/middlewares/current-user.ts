@@ -21,11 +21,16 @@ export const currentUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.session?.jwt) {
+  // if (!req.session?.jwt) {
+  //   return next();
+  // }
+
+  if (!req.headers?.authorization) {
     return next();
   }
-
   const jwt = req.headers.authorization;
+  console.log("jwt: ", jwt);
+
   // console.log("currentUser");
   const auth = await axios
     .post<{ currentUser: UserPayload }>(
