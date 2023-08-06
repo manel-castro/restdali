@@ -1,8 +1,10 @@
 "use client";
 import { Navbar } from "@/components/presentational/navbar";
 import { useAppContext } from "@/context/provider";
-import axios from "axios";
+import { getIsAuth } from "@/utils/getIsAuth";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { instance } from "../axiosInstance";
 
 export default function RootLayout({
   children,
@@ -12,11 +14,22 @@ export default function RootLayout({
   const { roleLevel, setRoleLevel } = useAppContext();
   console.log("roleLevel: ", roleLevel);
 
+  const router = useRouter();
+
   useEffect(() => {
+    if (!getIsAuth()) {
+      router.push("/user-admission");
+    }
+
     (async () => {
-      const currentUser = await axios.get("/api/users/currentuser");
-      console.log("currentUser.data.role: ", currentUser.data.role);
-      setRoleLevel(currentUser.data.role);
+      const currentUser = await instance
+        .get("/api/users/currentuser")
+        .then((res) => res.data)
+        .catch((e) => {
+          console.log("currentuser error: ", e);
+        });
+      console.log("currentUser.data.role: ", currentUser.role);
+      setRoleLevel(currentUser.role);
     })();
   }, []);
 

@@ -16,17 +16,41 @@ export const currentUser = (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.session?.jwt) {
+  /**
+   * TOKEN BASED AUTH
+   */
+
+  console.log("req.headers.authorization: ", req.headers.authorization);
+  if (!req.headers?.authorization) {
     return next();
   }
 
   try {
     const payload = jwt.verify(
-      req.session.jwt,
+      req.headers.authorization,
       process.env.JWT_KEY!
     ) as UserPayload;
+    console.log("authorizing token payload: ", payload);
+
     req.currentUser = payload;
-  } catch (e) {}
+  } catch (e) {
+    console.log("error authorizing token: ", e);
+  }
+
+  /**
+   * COOKIE BASED AUTH
+   */
+  // if (!req.session?.jwt) {
+  //   return next();
+  // }
+
+  // try {
+  //   const payload = jwt.verify(
+  //     req.session.jwt,
+  //     process.env.JWT_KEY!
+  //   ) as UserPayload;
+  //   req.currentUser = payload;
+  // } catch (e) {}
 
   next();
 };
