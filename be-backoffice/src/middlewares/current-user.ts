@@ -25,11 +25,13 @@ export const currentUser = async (
     return next();
   }
 
+  const jwt = req.headers.authorization;
   // console.log("currentUser");
   const auth = await axios
     .post<{ currentUser: UserPayload }>(
       "http://be-auth-srv:9001/cluster-api/users/verify-auth",
-      { jwt: req.session?.jwt }
+      { jwt }
+      // { jwt: req.session?.jwt }
     )
     .then((data) => data.data)
     .catch((err) => console.log("ERROR current user: ", err));

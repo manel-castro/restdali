@@ -64,15 +64,15 @@ router.post(
       {
         id: user.id,
         email: user.email,
-        role
+        role,
       },
       process.env.JWT_KEY!
     );
 
     // Store it on the session object
-    req.session = { jwt: userJwt }; // redefine this obj because type definitions
+    // req.session = { jwt: userJwt }; // redefine this obj because type definitions
 
-    res.status(201).send({ email: user.email });
+    res.status(201).send({ email: user.email, jwt: userJwt });
   }
 );
 

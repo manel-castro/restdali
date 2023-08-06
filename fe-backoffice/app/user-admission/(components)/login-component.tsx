@@ -57,6 +57,7 @@ const LoginComponent = () => {
       const login = await instance.post("/api/users/signin", values);
 
       router.push("/");
+      localStorage.setItem("session", login.data.jwt);
       console.log("login: ", login);
     } catch (e) {
       const error = e as any;

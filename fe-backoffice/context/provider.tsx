@@ -4,15 +4,20 @@ import {
   availableLanguages,
 } from "@/config/available-languages";
 import { createContext, useContext, useState } from "react";
+import { ERoleLevel } from "./enums";
 
 type initialStateType = {
   languageInUse: IAvailableLanguages;
   setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>;
+  roleLevel: ERoleLevel;
+  setRoleLevel: React.Dispatch<React.SetStateAction<ERoleLevel>>;
 };
 
 const initialState: initialStateType = {
   languageInUse: availableLanguages[0],
   setLanguageInUse: () => {},
+  roleLevel: ERoleLevel.USER,
+  setRoleLevel: () => {},
 };
 
 const Context = createContext<initialStateType>(initialState);
@@ -26,9 +31,13 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [languageInUse, setLanguageInUse] = useState(availableLanguages[0]);
 
+  const [roleLevel, setRoleLevel] = useState<ERoleLevel>(ERoleLevel.USER);
+
   const value = {
     languageInUse,
     setLanguageInUse,
+    roleLevel,
+    setRoleLevel,
   };
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
