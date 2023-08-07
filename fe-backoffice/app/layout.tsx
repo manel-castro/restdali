@@ -20,9 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={inter.className}
+        style={{ display: "flex", justifyContent: "center" }}
+      >
         <ContextProvider>
-          <div style={{ padding: 40 }}>{children}</div>
+          <div style={{ padding: 40, maxWidth: 1150, width: "100%" }}>
+            {children}
+          </div>
           <Toaster />
         </ContextProvider>
       </body>

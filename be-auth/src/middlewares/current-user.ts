@@ -20,7 +20,6 @@ export const currentUser = (
    * TOKEN BASED AUTH
    */
 
-  console.log("req.headers.authorization: ", req.headers.authorization);
   if (!req.headers?.authorization) {
     return next();
   }
@@ -30,7 +29,6 @@ export const currentUser = (
       req.headers.authorization,
       process.env.JWT_KEY!
     ) as UserPayload;
-    console.log("authorizing token payload: ", payload);
 
     req.currentUser = payload;
   } catch (e) {

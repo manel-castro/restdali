@@ -1,10 +1,12 @@
 import axios from "axios";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { ERoleLevel } from "../types/enums";
 
 interface UserPayload {
   id: string;
   email: string;
+  role: ERoleLevel;
 }
 
 // 192 Augment Type Definitions. Min 2:45

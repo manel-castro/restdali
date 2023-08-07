@@ -4,6 +4,7 @@ import { validateRequest } from "../../../../../middlewares/validate-request";
 import { prisma } from "../../../../../prismaclient";
 
 import { BadRequestError } from "../../../../../errors/bad-request-error";
+import { ERoleLevel } from "../../../../../types/enums";
 const express = require("express");
 
 const router = express.Router();
@@ -132,6 +133,10 @@ router.patch(
     check("fields").isArray(),
     check("fields.*.fieldId", "initialField fieldId is needed").isString(),
     check(
+      "fields.*.fieldLabel",
+      "initialField fieldLabel is needed"
+    ).isString(),
+    check(
       "fields.*.fieldValue",
       "initialField fieldValue is needed"
     ).isString(),
@@ -140,6 +145,8 @@ router.patch(
   async function (req: Request, res: Response, next: NextFunction) {
     const { fields, lang } = req.body;
     const { sectionId } = req.params;
+
+    const role = req.currentUser!.role;
 
     const existingSection = await prisma.section.findFirst({
       where: {
@@ -152,9 +159,10 @@ router.patch(
     }
 
     for (const field of fields) {
-      const { fieldId, fieldValue } = field as {
+      const { fieldId, fieldValue, fieldLabel } = field as {
         fieldId: string;
         fieldValue: string;
+        fieldLabel: string;
       };
       const existingField = await prisma.field.findFirst({
         where: {
@@ -168,7 +176,11 @@ router.patch(
       await prisma.field.update({
         where: { fieldId },
         data: {
-          fieldValue,
+          fieldValue:
+            role === ERoleLevel.SUPERADMIN || role === ERoleLevel.ADMIN
+              ? fieldValue
+              : undefined,
+          fieldLabel: role === ERoleLevel.SUPERADMIN ? fieldLabel : undefined,
         },
       });
     }

@@ -5,6 +5,7 @@ import { getIsAuth } from "@/utils/getIsAuth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { instance } from "../axiosInstance";
+import { ERoleLevel } from "@/context/enums";
 
 export default function RootLayout({
   children,
@@ -32,7 +33,8 @@ export default function RootLayout({
           console.log("currentuser error: ", e);
         });
       console.log("currentUser.data.role: ", currentUser.role);
-      setRoleLevel(currentUser.role);
+      setRoleLevel(ERoleLevel.SUPERADMIN);
+      // setRoleLevel(currentUser.role);
     })();
   }, []);
 

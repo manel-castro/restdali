@@ -39,7 +39,7 @@ router.post(
     const role =
       adminKey === process.env.ADMIN_SIGNUP_KEY
         ? "ADMIN"
-        : adminKey !== process.env.SUPER_ADMIN_SIGNUP_KEY
+        : adminKey === process.env.SUPER_ADMIN_SIGNUP_KEY
         ? "SUPER_ADMIN"
         : "USER";
 

@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { IAvailableLanguages } from "@/config/available-languages";
+import { ERoleLevel } from "@/context/enums";
+import { useAppContext } from "@/context/provider";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
@@ -50,6 +52,7 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
   const [IsLoadingSaveForm, setIsLoadingSaveForm] = useState(false);
 
   const { toast } = useToast();
+  const { roleLevel } = useAppContext();
 
   const onChangeFieldValue = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -167,44 +170,56 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
                     <Input
                       onChange={(e) => onChangeFieldLabel(e, index)}
                       // React useState doesn't detect nested objects changes
+                      disabled={roleLevel !== ERoleLevel.SUPERADMIN}
                       defaultValue={field.fieldLabel}
                     ></Input>
                     <Input
                       onChange={(e) => onChangeFieldValue(e, index)}
                       // React useState doesn't detect nested objects changes
                       defaultValue={field.fieldValue}
+                      disabled={
+                        roleLevel !== ERoleLevel.SUPERADMIN &&
+                        roleLevel !== ERoleLevel.ADMIN
+                      }
                     ></Input>
                   </Label>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() => onDeleteField(field.fieldId)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
+                  {roleLevel === ERoleLevel.SUPERADMIN && (
+                    <Button
+                      variant={"ghost"}
+                      onClick={() => onDeleteField(field.fieldId)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  )}
                 </div>
               );
             })}
           </div>
-          <div>
-            <Button
-              onClick={() => {
-                onAddNewField();
-              }}
-              disabled={IsLoadingCreateNeweField}
-              style={{ width: 200 }}
-            >
-              {IsLoadingCreateNeweField ? <Spinner /> : "Añadir nuevo campo"}
-            </Button>
-          </div>
-          <div>
-            <Button
-              style={{ width: 150 }}
-              onClick={onSave}
-              disabled={IsLoadingSaveForm}
-            >
-              {IsLoadingSaveForm ? <Spinner /> : "Guardar"}
-            </Button>
-          </div>
+          {roleLevel === ERoleLevel.SUPERADMIN && (
+            <div>
+              <Button
+                onClick={() => {
+                  onAddNewField();
+                }}
+                disabled={IsLoadingCreateNeweField}
+                style={{ width: 200 }}
+              >
+                {IsLoadingCreateNeweField ? <Spinner /> : "Añadir nuevo campo"}
+              </Button>
+            </div>
+          )}
+          {(roleLevel === ERoleLevel.SUPERADMIN ||
+            roleLevel === ERoleLevel.ADMIN) && (
+            <div>
+              <Button
+                style={{ width: 150 }}
+                onClick={onSave}
+                disabled={IsLoadingSaveForm}
+              >
+                {IsLoadingSaveForm ? <Spinner /> : "Guardar"}
+              </Button>
+            </div>
+          )}
         </div>
       </AccordionContent>
     </AccordionItem>
