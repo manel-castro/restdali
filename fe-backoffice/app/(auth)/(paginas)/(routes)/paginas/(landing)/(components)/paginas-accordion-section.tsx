@@ -73,7 +73,7 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
     });
   };
 
-  const onSave = async () => {
+  const onUpdateField = async () => {
     setIsLoadingSaveForm(true);
     console.log("fields: ", fields);
     try {
@@ -213,7 +213,7 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
             <div>
               <Button
                 style={{ width: 150 }}
-                onClick={onSave}
+                onClick={onUpdateField}
                 disabled={IsLoadingSaveForm}
               >
                 {IsLoadingSaveForm ? <Spinner /> : "Guardar"}

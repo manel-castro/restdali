@@ -33,8 +33,8 @@ export default function RootLayout({
           console.log("currentuser error: ", e);
         });
       console.log("currentUser.data.role: ", currentUser.role);
-      setRoleLevel(ERoleLevel.SUPERADMIN);
-      // setRoleLevel(currentUser.role);
+
+      setRoleLevel(currentUser.role);
     })();
   }, []);
 

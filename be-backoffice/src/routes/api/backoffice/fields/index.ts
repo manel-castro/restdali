@@ -4,6 +4,8 @@ import { validateRequest } from "../../../../middlewares/validate-request";
 import { prisma } from "../../../../prismaclient";
 
 import { BadRequestError } from "../../../../errors/bad-request-error";
+import { ERoleLevel } from "../../../../types/enums";
+import { requireIsSuperAdmin } from "../../../../middlewares/require-role";
 const express = require("express");
 
 const router = express.Router();
@@ -12,7 +14,6 @@ router.patch(
   "/fields/:fieldId",
   [param("fieldId", "Is badly formatted").isString()],
   [
-    check("fieldType", "initialField fieldType is needed").optional(),
     check("fieldLabel", "initialField fieldLabel is needed").optional(),
     check("fieldValue", "initialField fieldValue is needed").optional(),
   ],
@@ -20,6 +21,8 @@ router.patch(
   async function (req: Request, res: Response, next: NextFunction) {
     const { fieldType, fieldValue, fieldLabel, lang } = req.body;
     const { fieldId } = req.params;
+
+    const role = req.currentUser!.role;
 
     const existingField = await prisma.field.findFirst({
       where: {
@@ -35,9 +38,11 @@ router.patch(
         fieldId,
       },
       data: {
-        fieldLabel,
-        fieldType,
-        fieldValue,
+        fieldValue:
+          role === ERoleLevel.SUPERADMIN || role === ERoleLevel.ADMIN
+            ? fieldValue
+            : undefined,
+        fieldLabel: role === ERoleLevel.SUPERADMIN ? fieldLabel : undefined,
       },
     });
 
@@ -49,6 +54,7 @@ router.delete(
   "/fields/:fieldId",
   [param("fieldId", "Is badly formatted").isString()],
   validateRequest,
+  requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     const { fieldId } = req.params;
 

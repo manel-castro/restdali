@@ -34,13 +34,23 @@ export const LanguageSelector: React.FC<ILanguageSelector> = ({
   setLanguageInUse,
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(languageInUse.value);
+  const [value, setValue] = React.useState("");
+
+  React.useEffect(() => {
+    const storedLanguage = window.localStorage.getItem("language-in-use");
+    if (storedLanguage) {
+      console.log("storedLanguage: ", storedLanguage);
+      setValue(storedLanguage);
+    }
+  }, []);
 
   React.useEffect(() => {
     console.log("value: ", value);
     if (value) {
       const language = availableLanguages?.find((item) => item.value === value);
-      setLanguageInUse(language || availableLanguages[0]);
+      const languageToSet = language || availableLanguages[0];
+      setLanguageInUse(languageToSet);
+      window.localStorage.setItem("language-in-use", languageToSet.value);
     }
   }, [value, setLanguageInUse]);
 

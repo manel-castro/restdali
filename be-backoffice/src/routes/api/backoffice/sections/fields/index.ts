@@ -5,6 +5,7 @@ import { prisma } from "../../../../../prismaclient";
 
 import { BadRequestError } from "../../../../../errors/bad-request-error";
 import { ERoleLevel } from "../../../../../types/enums";
+import { requireIsSuperAdmin } from "../../../../../middlewares/require-role";
 const express = require("express");
 
 const router = express.Router();
@@ -49,6 +50,7 @@ router.post(
     body("lang", "lang is needed").isString(),
   ],
   validateRequest,
+  requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     const { fieldId, fieldType, fieldValue, fieldLabel, lang } = req.body;
     const { sectionId } = req.params;
@@ -94,6 +96,7 @@ router.delete(
     param("fieldId", "Is badly formatted").isString(),
   ],
   validateRequest,
+  requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     const { sectionId, fieldId } = req.params;
 
@@ -140,6 +143,7 @@ router.patch(
       "fields.*.fieldValue",
       "initialField fieldValue is needed"
     ).isString(),
+    check("lang").isString(),
   ],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
