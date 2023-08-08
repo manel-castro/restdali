@@ -12,7 +12,7 @@ export const getHeroSectionData = async (locale: string) => {
   console.log("locale: ", locale)
   const heroData =
     await axiosInstance.get(
-      `http://be-backoffice-srv:3003/api/backoffice/sections/hero-section/fields/${locale}`
+      `http://be-backoffice-srv:9002/api/backoffice/sections/hero-section/fields/${locale}`
     ).then(res => res.data).catch(e => console.log("error: ", e)) as CMSData[]
 
 
