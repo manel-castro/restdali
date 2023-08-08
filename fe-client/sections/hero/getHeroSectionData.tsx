@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { axiosInstance } from "@/axiosInstance";
 import { CMSData, InitialField } from "@/utils/interfaces";
