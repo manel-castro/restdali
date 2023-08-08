@@ -7,7 +7,7 @@ import { IAvailableLanguages } from "@/config/available-languages";
 interface IPagesHeader {
 
   languageInUse: IAvailableLanguages | undefined
-  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>
+  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages | undefined>>
 }
 export const PagesHeader: React.FC<IPagesHeader> = ({ languageInUse, setLanguageInUse }) => {
 

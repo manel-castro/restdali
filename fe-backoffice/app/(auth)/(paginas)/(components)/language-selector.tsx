@@ -27,7 +27,7 @@ const frameworks = availableLanguages;
 
 interface ILanguageSelector {
   languageInUse: IAvailableLanguages | undefined;
-  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>;
+  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages | undefined>>;
 }
 
 export const LanguageSelector: React.FC<ILanguageSelector> = ({
