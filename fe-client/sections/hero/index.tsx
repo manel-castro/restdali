@@ -5,10 +5,15 @@ import { getHeroSectionData } from "./getHeroSectionData";
 export default async function Hero() {
   //eslint-disable-next-line
   const locale = useLocale();
+  console.log("useLocale().locale: ", locale);
+
   const heroData = await getHeroSectionData(locale);
 
-  const { Title, Description, Video } = heroData.data.attributes;
-  const videoSrc = "http://localhost:1337" + Video.data.attributes.url;
+  console.log("heroData:", heroData)
+
+  const { Title, Description, Video } = heroData
+  const videoSrc = Video
+
 
   return (
     <>

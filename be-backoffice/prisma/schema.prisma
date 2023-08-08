@@ -11,7 +11,8 @@ datasource db {
 }
 
 model Field {
-  fieldId    String   @id @default(uuid())
+  id         String   @id @default(uuid())
+  fieldId    String
   fieldType  String
   fieldLabel String
   fieldValue String

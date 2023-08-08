@@ -1,5 +1,6 @@
 "use client";
 import { instance } from "@/app/axiosInstance";
+import { DeletionAlert } from "@/components/abstract/deletion-alert";
 import {
   AccordionContent,
   AccordionItem,
@@ -7,7 +8,6 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { IAvailableLanguages } from "@/config/available-languages";
@@ -15,10 +15,10 @@ import { ERoleLevel } from "@/context/enums";
 import { useAppContext } from "@/context/provider";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useState } from "react";
 
 export interface Field {
+  id: string;
   fieldId: string;
   fieldType: "text";
   fieldLabel: string;
@@ -29,7 +29,7 @@ export interface Field {
 interface IPaginasAccordionSection {
   title: string;
   sectionId: string;
-  lang: IAvailableLanguages;
+  lang: IAvailableLanguages | undefined;
   initialFields: Field[];
   onSubmit?: (title: string, newValues: Field[]) => void;
 }
@@ -45,6 +45,7 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
 }) => {
   const [fields, setFields] = useState(initialFields);
   const [refreshComponent, setRefreshComponent] = useState(0);
+  const [isOpenFieldDeletionModal, setIsOpenFieldDeletionModal] = useState("");
 
   const [IsLoadingCreateNeweField, setIsLoadingCreateNeweField] =
     useState(false);
@@ -72,13 +73,24 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
       return prev;
     });
   };
+  const onChangeFieldId = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    setFields((prev) => {
+      prev[index].fieldId = e.target.value;
+      return prev;
+    });
+  };
 
   const onUpdateField = async () => {
+    if (!fields.length) return;
     setIsLoadingSaveForm(true);
     console.log("fields: ", fields);
     try {
       await instance.patch(`/api/backoffice/sections/${sectionId}/fields`, {
         fields,
+        lang: lang?.value,
       });
     } catch (E) {
       console.log("error:", E);
@@ -100,21 +112,23 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
     setIsLoadingCreateNeweField(true);
     console.log("lang: ", lang);
     const newField: Field = {
+      id: Math.floor(Math.random() * 10000).toString(),
       fieldId: Math.floor(Math.random() * 10000).toString(),
       fieldType: "text",
       fieldLabel: "New input",
       fieldValue: "Initial value",
-      lang: lang.value,
+      lang: lang?.value || "es",
     };
 
     try {
       console.log("newField: ", newField);
-      await instance.post(
+      const createdField = await instance.post(
         `/api/backoffice/sections/${sectionId}/field`,
         newField
-      );
+      ).then(res => res.data).catch(err => console.log("err creating new field: ", err));
+      console.log("createdField:", createdField)
       setFields((prev) => {
-        return [...prev, newField];
+        return [...prev, createdField];
       });
     } catch (E) {
       console.log("error:", E);
@@ -131,19 +145,36 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
   };
 
   const onDeleteField = async (fieldId: string) => {
+    /**
+     * Used to pass the fieldId 
+     */
+    setIsOpenFieldDeletionModal(fieldId);
+  };
+  const deleteField = async (id: string) => {
     try {
-      await instance.delete(`/api/backoffice/fields/${fieldId}`);
+      await instance.delete(`/api/backoffice/fields/${id}`);
 
+      /**
+       * TODO: debug why this deletes other value in the list optimistically 
+       */
+      window.location.reload() // temporal solution
       setFields((prev) => {
-        const index = prev.findIndex((item) => item.fieldId === fieldId);
-        console.log({ index, prev });
+        const index = prev.findIndex((item) => item.id === id);
+        console.log({ id, index, prev: JSON.parse(JSON.stringify(prev, null, 2)) });
 
-        prev.splice(index, 1);
-        return prev;
+        return prev.reduce<Field[]>((previous, current, currentIndex, array) => {
+
+          if (currentIndex === index) return previous
+          return [...previous, current]
+        }, [])
+
       });
+      /**
+       * \/ Needed since nested array it's not detected for rerender.
+       */
       setRefreshComponent((prev) => prev + 1);
     } catch (E) {
-      console.log("error:", E);
+      console.log("error E");
       const error = E as any;
       const messages = error.response.data?.errors || ["Default error"];
       toast({
@@ -155,73 +186,110 @@ export const PaginasAccordionSection: React.FC<IPaginasAccordionSection> = ({
   };
 
   return (
-    <AccordionItem value={title}>
-      <AccordionTrigger>{title}</AccordionTrigger>
-      <AccordionContent>
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div>Aquí puedes editar los valores para la seccion {title}:</div>
+    <>
+      <DeletionAlert
+        isOpen={!!isOpenFieldDeletionModal}
+        onCancel={() => setIsOpenFieldDeletionModal("")}
+        onSuccess={() => {
+          deleteField(isOpenFieldDeletionModal);
+          setIsOpenFieldDeletionModal("");
+        }}
+      />
+      <AccordionItem value={title}>
+        <AccordionTrigger>{title}</AccordionTrigger>
+        <AccordionContent>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {fields.map((field, index) => {
-              return (
-                <div key={index} style={{ display: "flex" }}>
-                  <Label
-                    style={{ display: "flex", gap: 20, alignItems: "center" }}
-                  >
-                    <Input
-                      onChange={(e) => onChangeFieldLabel(e, index)}
-                      // React useState doesn't detect nested objects changes
-                      disabled={roleLevel !== ERoleLevel.SUPERADMIN}
-                      defaultValue={field.fieldLabel}
-                    ></Input>
-                    <Input
-                      onChange={(e) => onChangeFieldValue(e, index)}
-                      // React useState doesn't detect nested objects changes
-                      defaultValue={field.fieldValue}
-                      disabled={
-                        roleLevel !== ERoleLevel.SUPERADMIN &&
-                        roleLevel !== ERoleLevel.ADMIN
-                      }
-                    ></Input>
-                  </Label>
-                  {roleLevel === ERoleLevel.SUPERADMIN && (
-                    <Button
-                      variant={"ghost"}
-                      onClick={() => onDeleteField(field.fieldId)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {roleLevel === ERoleLevel.SUPERADMIN && (
-            <div>
-              <Button
-                onClick={() => {
-                  onAddNewField();
+            <div>Aquí puedes editar los valores para la seccion {title}:</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <table
+                style={{
+                  borderCollapse: "separate",
+                  borderSpacing: "1em",
                 }}
-                disabled={IsLoadingCreateNeweField}
-                style={{ width: 200 }}
               >
-                {IsLoadingCreateNeweField ? <Spinner /> : "Añadir nuevo campo"}
-              </Button>
+                <tr>
+                  <th>ID</th>
+                  <th>Label</th>
+                  <th>Value</th>
+                </tr>
+                {fields.length &&
+                  fields.map((field, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>
+                          <Input
+                            onChange={(e) => onChangeFieldId(e, index)}
+                            // React useState doesn't detect nested objects changes
+                            disabled={roleLevel !== ERoleLevel.SUPERADMIN}
+                            defaultValue={field.fieldId}
+                          ></Input>
+                        </td>
+                        <td>
+                          <Input
+                            onChange={(e) => onChangeFieldLabel(e, index)}
+                            // React useState doesn't detect nested objects changes
+                            disabled={roleLevel !== ERoleLevel.SUPERADMIN}
+                            defaultValue={field.fieldLabel}
+                          ></Input>
+                        </td>
+                        <td>
+                          <Input
+                            onChange={(e) => onChangeFieldValue(e, index)}
+                            // React useState doesn't detect nested objects changes
+                            defaultValue={field.fieldValue}
+                            disabled={
+                              roleLevel !== ERoleLevel.SUPERADMIN &&
+                              roleLevel !== ERoleLevel.ADMIN
+                            }
+                          ></Input>
+                        </td>
+                        <td>
+                          {roleLevel === ERoleLevel.SUPERADMIN && (
+                            <Button
+                              variant={"ghost"}
+                              onClick={() => onDeleteField(field.id)}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </table>
             </div>
-          )}
-          {(roleLevel === ERoleLevel.SUPERADMIN ||
-            roleLevel === ERoleLevel.ADMIN) && (
-            <div>
-              <Button
-                style={{ width: 150 }}
-                onClick={onUpdateField}
-                disabled={IsLoadingSaveForm}
-              >
-                {IsLoadingSaveForm ? <Spinner /> : "Guardar"}
-              </Button>
-            </div>
-          )}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
+            {roleLevel === ERoleLevel.SUPERADMIN && (
+              <div>
+                <Button
+                  onClick={() => {
+                    onAddNewField();
+                  }}
+                  disabled={IsLoadingCreateNeweField}
+                  style={{ width: 200 }}
+                >
+                  {IsLoadingCreateNeweField ? (
+                    <Spinner />
+                  ) : (
+                    "Añadir nuevo campo"
+                  )}
+                </Button>
+              </div>
+            )}
+            {(roleLevel === ERoleLevel.SUPERADMIN ||
+              roleLevel === ERoleLevel.ADMIN) && (
+                <div>
+                  <Button
+                    style={{ width: 150 }}
+                    onClick={onUpdateField}
+                    disabled={!fields.length || IsLoadingSaveForm}
+                  >
+                    {IsLoadingSaveForm ? <Spinner /> : "Guardar"}
+                  </Button>
+                </div>
+              )}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </>
   );
 };

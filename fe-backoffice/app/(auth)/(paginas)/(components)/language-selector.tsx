@@ -21,11 +21,12 @@ import {
   IAvailableLanguages,
   availableLanguages,
 } from "@/config/available-languages";
+import { useRouter } from "next/navigation";
 
 const frameworks = availableLanguages;
 
 interface ILanguageSelector {
-  languageInUse: IAvailableLanguages;
+  languageInUse: IAvailableLanguages | undefined;
   setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>;
 }
 
@@ -34,25 +35,25 @@ export const LanguageSelector: React.FC<ILanguageSelector> = ({
   setLanguageInUse,
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
 
   React.useEffect(() => {
     const storedLanguage = window.localStorage.getItem("language-in-use");
     if (storedLanguage) {
-      console.log("storedLanguage: ", storedLanguage);
-      setValue(storedLanguage);
+      const language = availableLanguages?.find(
+        (item) => item.value === storedLanguage
+      )!;
+      setLanguageInUse(language);
     }
-  }, []);
+  }, [setLanguageInUse]);
 
-  React.useEffect(() => {
-    console.log("value: ", value);
-    if (value) {
-      const language = availableLanguages?.find((item) => item.value === value);
-      const languageToSet = language || availableLanguages[0];
-      setLanguageInUse(languageToSet);
-      window.localStorage.setItem("language-in-use", languageToSet.value);
-    }
-  }, [value, setLanguageInUse]);
+  const onChange = (_value: string) => {
+    window.localStorage.setItem("language-in-use", _value);
+    const language = availableLanguages?.find((item) => item.value === _value);
+    language && setLanguageInUse(language);
+    window.location.reload()
+    // router.refresh() not working
+    // also component state doesnt refresh component childs 
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -63,16 +64,18 @@ export const LanguageSelector: React.FC<ILanguageSelector> = ({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+          {languageInUse?.value
+            ? frameworks.find(
+              (framework) => framework.value === languageInUse.value
+            )?.label
             : "Select framework..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandInput placeholder="Select a language..." />
+          <CommandEmpty>Select a language</CommandEmpty>
           <CommandGroup>
             {frameworks.map((framework) => (
               <CommandItem
@@ -83,14 +86,20 @@ export const LanguageSelector: React.FC<ILanguageSelector> = ({
                     frameworks.find(
                       (item) => item.label.toLowerCase() === currentValue
                     )?.value || frameworks[0].value;
-                  setValue(currentValue === value ? "" : actualCurrentValue);
+                  onChange(
+                    currentValue === languageInUse?.value
+                      ? ""
+                      : actualCurrentValue
+                  );
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === framework.value ? "opacity-100" : "opacity-0"
+                    languageInUse?.value === framework.value
+                      ? "opacity-100"
+                      : "opacity-0"
                   )}
                 />
                 {framework.label}

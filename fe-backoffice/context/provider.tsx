@@ -7,17 +7,17 @@ import { createContext, useContext, useState } from "react";
 import { ERoleLevel } from "./enums";
 
 type initialStateType = {
-  languageInUse: IAvailableLanguages;
+  languageInUse: IAvailableLanguages | undefined;
   setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>;
   roleLevel: ERoleLevel;
   setRoleLevel: React.Dispatch<React.SetStateAction<ERoleLevel>>;
 };
 
 const initialState: initialStateType = {
-  languageInUse: availableLanguages[0],
-  setLanguageInUse: () => {},
+  languageInUse: undefined,
+  setLanguageInUse: () => { },
   roleLevel: ERoleLevel.USER,
-  setRoleLevel: () => {},
+  setRoleLevel: () => { },
 };
 
 const Context = createContext<initialStateType>(initialState);
@@ -29,7 +29,7 @@ export const useAppContext = () => {
 export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [languageInUse, setLanguageInUse] = useState(availableLanguages[0]);
+  const [languageInUse, setLanguageInUse] = useState<IAvailableLanguages | undefined>();
 
   const [roleLevel, setRoleLevel] = useState<ERoleLevel>(ERoleLevel.USER);
 

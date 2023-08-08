@@ -5,6 +5,7 @@ import { prisma } from "../../../../prismaclient";
 
 import { BadRequestError } from "../../../../errors/bad-request-error";
 import { SectionFieldsRouter } from "./fields";
+import { requireAuth } from "../../../../middlewares/require-auth";
 const express = require("express");
 
 const router = express.Router();
@@ -16,10 +17,15 @@ router.get(
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     // const { sectionName } = req.params;
+    const lang = req.query?.lang as string | undefined;
 
     const form = await prisma.section.findMany({
       include: {
-        initialFields: true,
+        initialFields: {
+          where: {
+            lang,
+          },
+        },
       },
     });
 
@@ -49,6 +55,7 @@ router.get(
 router.post(
   "/section",
   [body("title", "title needed").isString()],
+  requireAuth,
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const { title } = req.body;

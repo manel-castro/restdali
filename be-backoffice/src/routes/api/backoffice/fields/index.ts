@@ -11,8 +11,8 @@ const express = require("express");
 const router = express.Router();
 
 router.patch(
-  "/fields/:fieldId",
-  [param("fieldId", "Is badly formatted").isString()],
+  "/fields/:id",
+  [param("id", "Is badly formatted").isString()],
   [
     check("fieldLabel", "initialField fieldLabel is needed").optional(),
     check("fieldValue", "initialField fieldValue is needed").optional(),
@@ -20,13 +20,13 @@ router.patch(
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const { fieldType, fieldValue, fieldLabel, lang } = req.body;
-    const { fieldId } = req.params;
+    const { id } = req.params;
 
     const role = req.currentUser!.role;
 
     const existingField = await prisma.field.findFirst({
       where: {
-        fieldId,
+        id,
       },
     });
 
@@ -35,7 +35,7 @@ router.patch(
     }
     await prisma.field.update({
       where: {
-        fieldId,
+        id,
       },
       data: {
         fieldValue:
@@ -51,16 +51,16 @@ router.patch(
 );
 
 router.delete(
-  "/fields/:fieldId",
-  [param("fieldId", "Is badly formatted").isString()],
+  "/fields/:id",
+  [param("id", "Is badly formatted").isString()],
   validateRequest,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { fieldId } = req.params;
+    const { id } = req.params;
 
     const existingField = await prisma.field.findFirst({
       where: {
-        fieldId,
+        id,
       },
     });
 
@@ -69,7 +69,7 @@ router.delete(
     }
     await prisma.field.delete({
       where: {
-        fieldId,
+        id,
       },
     });
 

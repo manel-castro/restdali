@@ -2,16 +2,21 @@
 import { Badge } from "@/components/ui/badge";
 import { useAppContext } from "@/context/provider";
 import { LanguageSelector } from "./language-selector";
+import { IAvailableLanguages } from "@/config/available-languages";
 
-export const PagesHeader = () => {
-  const { languageInUse, setLanguageInUse } = useAppContext();
+interface IPagesHeader {
+
+  languageInUse: IAvailableLanguages | undefined
+  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>
+}
+export const PagesHeader: React.FC<IPagesHeader> = ({ languageInUse, setLanguageInUse }) => {
 
   return (
     <div style={{ display: "flex", justifyContent: "space-between" }}>
       <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
         <div>Páginas</div>
         <div>
-          <Badge>{languageInUse.label}</Badge>
+          <Badge>{languageInUse?.label}</Badge>
         </div>
       </div>
       <div>

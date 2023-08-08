@@ -10,8 +10,14 @@ import { ContextProvider } from "@/context/provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/toaster";
 import axios from "axios";
+import { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Indive",
+  description: "Panel de administración de Indive",
+};
 
 export default function RootLayout({
   children,
