@@ -1,3 +1,4 @@
+"use client"
 import { useLocale } from "next-intl";
 import { HeroSection } from "./HeroSection";
 import { getHeroSectionData } from "./getHeroSectionData";
