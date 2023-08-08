@@ -17,7 +17,7 @@ const start = async () => {
    * Environment variables verification
    */
   if (!process.env.JWT_KEY) {
-    throw new Error("JWT_KEY must be defined in deployment yaml file");
+    throw new Error("JWT_KEY must be defined in deployment yaml file!");
   }
 
   const app = express();

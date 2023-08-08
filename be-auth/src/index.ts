@@ -36,7 +36,7 @@ const start = async () => {
       await DataSource.synchronize();
       console.log("Typeorm connected to postgres...");
     })
-    .catch((error) => console.log("error connecting typeorm: ", error));
+    .catch((error) => console.log("!error connecting typeorm: ", error));
 
   /**
    * API REST
