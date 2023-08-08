@@ -14,7 +14,7 @@ function UserAdmission() {
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger
           value="registrarse"
-          disabled={roleLevel !== ERoleLevel.SUPERADMIN}
+        // disabled={roleLevel !== ERoleLevel.SUPERADMIN}
         >
           Registrarse
         </TabsTrigger>
