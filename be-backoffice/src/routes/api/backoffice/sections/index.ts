@@ -54,14 +54,17 @@ router.get(
 
 router.post(
   "/section",
-  [body("title", "title needed").isString()],
+  [
+    body("title", "title needed").isString(),
+    body("id", "id needed").isString(),
+  ],
   requireAuth,
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { title } = req.body;
+    const { title, id } = req.body;
     const existingSection = await prisma.section.findMany({
       where: {
-        title,
+        id,
       },
     });
 
@@ -71,6 +74,7 @@ router.post(
 
     const form = await prisma.section.create({
       data: {
+        id,
         title,
       },
     });
