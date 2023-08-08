@@ -8,7 +8,7 @@ import { ERoleLevel } from "./enums";
 
 type initialStateType = {
   languageInUse: IAvailableLanguages | undefined;
-  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages>>;
+  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages | undefined>>;
   roleLevel: ERoleLevel;
   setRoleLevel: React.Dispatch<React.SetStateAction<ERoleLevel>>;
 };
