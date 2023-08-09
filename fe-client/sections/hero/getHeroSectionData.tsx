@@ -1,6 +1,6 @@
 // "use client";
 
-import { axiosInstance } from "@/axiosInstance";
+import { axiosInstanceAuth } from "@/axiosInstances";
 import { CMSData, InitialField } from "@/utils/interfaces";
 import axios from "axios";
 import i18next from "i18next";
@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 export const getHeroSectionData = async (locale: string) => {
   console.log("locale: ", locale)
   const heroData =
-    await axiosInstance.get(
-      `http://be-backoffice-srv:9002/api/backoffice/sections/hero-section/fields/${locale}`
+    await axiosInstanceAuth.get(
+      `/api/backoffice/sections/hero-section/fields/${locale}`
     ).then(res => res.data).catch(e => console.log("error: ", e)) as CMSData[]
 
 
