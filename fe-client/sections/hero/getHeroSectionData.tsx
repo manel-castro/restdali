@@ -16,7 +16,6 @@ export const getHeroSectionData = async (locale: string) => {
     ).then(res => res.data).catch(e => console.log("error: ", e)) as CMSData[]
 
 
-  console.log("HERO DATA: ", heroData)
 
   const Title = heroData[0].initialFields.find((item: InitialField) => item.fieldId === "hero-title")?.fieldValue
   const Description = heroData[0].initialFields.find((item: InitialField) => item.fieldId === "hero-description")?.fieldValue
