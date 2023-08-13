@@ -27,7 +27,9 @@ const frameworks = availableLanguages;
 
 interface ILanguageSelector {
   languageInUse: IAvailableLanguages | undefined;
-  setLanguageInUse: React.Dispatch<React.SetStateAction<IAvailableLanguages | undefined>>;
+  setLanguageInUse: React.Dispatch<
+    React.SetStateAction<IAvailableLanguages | undefined>
+  >;
 }
 
 export const LanguageSelector: React.FC<ILanguageSelector> = ({
@@ -47,12 +49,14 @@ export const LanguageSelector: React.FC<ILanguageSelector> = ({
   }, [setLanguageInUse]);
 
   const onChange = (_value: string) => {
+    console.log("change language in use");
+
     window.localStorage.setItem("language-in-use", _value);
     const language = availableLanguages?.find((item) => item.value === _value);
     language && setLanguageInUse(language);
-    window.location.reload()
+    window.location.reload();
     // router.refresh() not working
-    // also component state doesnt refresh component childs 
+    // also component state doesnt refresh component childs
   };
 
   return (
@@ -66,8 +70,8 @@ export const LanguageSelector: React.FC<ILanguageSelector> = ({
         >
           {languageInUse?.value
             ? frameworks.find(
-              (framework) => framework.value === languageInUse.value
-            )?.label
+                (framework) => framework.value === languageInUse.value
+              )?.label
             : "Select framework..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
