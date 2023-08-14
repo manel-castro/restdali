@@ -46,7 +46,6 @@ async function main() {
 }
 main()
   .then(async () => {
-    console.log("Prisma seeded");
     await prisma.$disconnect();
   })
   .catch(async (e) => {
