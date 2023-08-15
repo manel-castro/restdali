@@ -22,4 +22,19 @@ export class User {
 
   @Column()
   role: string;
+
+  @Column()
+  project: Project;
+}
+
+@Entity({
+  name: "project",
+  // synchronize: true,
+})
+export class Project {
+  @PrimaryGeneratedColumn("uuid")
+  id: number;
+
+  @Column()
+  projectName: string;
 }

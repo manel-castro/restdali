@@ -24,6 +24,21 @@ const start = async () => {
   if (!process.env.JWT_KEY) {
     throw new Error("JWT_KEY must be defined");
   }
+  if (!process.env.PORT) {
+    throw new Error("PORT must be defined");
+  }
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL must be defined");
+  }
+  if (!process.env.ADMIN_SIGNUP_KEY) {
+    throw new Error("ADMIN_SIGNUP_KEY must be defined");
+  }
+  if (!process.env.SUPER_ADMIN_SIGNUP_KEY) {
+    throw new Error("SUPER_ADMIN_SIGNUP_KEY must be defined");
+  }
+  if (!process.env.USER_SIGNUP_KEY) {
+    throw new Error("USER_SIGNUP_KEY must be defined");
+  }
 
   /**
    * TYPEORM
