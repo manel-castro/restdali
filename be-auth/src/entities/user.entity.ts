@@ -4,7 +4,25 @@
 // -  createdAt DateTime @default(now())
 // -  updatedAt DateTime @updatedAt
 
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
+
+@Entity({
+  name: "project",
+  // synchronize: true,
+})
+export class Project {
+  @PrimaryGeneratedColumn("uuid")
+  id: number;
+
+  @Column()
+  projectName: string;
+}
 
 @Entity({
   name: "user",
@@ -23,18 +41,6 @@ export class User {
   @Column()
   role: string;
 
-  @Column()
+  @ManyToOne(() => Project, (project) => project.id)
   project: Project;
-}
-
-@Entity({
-  name: "project",
-  // synchronize: true,
-})
-export class Project {
-  @PrimaryGeneratedColumn("uuid")
-  id: number;
-
-  @Column()
-  projectName: string;
 }
