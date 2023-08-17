@@ -11,6 +11,7 @@ import * as redis from "redis";
 import { VerifyAuthClusterRouter } from "./cluster-routes";
 import { AppDataSource } from "./data-source";
 import { createDatabase } from "typeorm-extension";
+import { ProjectsRouter } from "./routes/projects";
 
 export const redisClient = redis.createClient({
   url: "redis://redis",
@@ -76,6 +77,7 @@ const start = async () => {
   app.use(SignupRouter);
   app.use(SigninRouter);
   app.use(CurrentUserRouter);
+  app.use(ProjectsRouter);
 
   /**
    * CLUSTER ROUTES

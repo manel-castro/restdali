@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
+  JoinTable,
 } from "typeorm";
 
 @Entity({
@@ -42,5 +43,6 @@ export class User {
   role: string;
 
   @ManyToOne(() => Project, (project) => project.id)
+  @JoinTable()
   project: Project;
 }

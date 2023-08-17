@@ -2,13 +2,16 @@ import express, { NextFunction, Request, Response } from "express";
 
 import jwt from "jsonwebtoken";
 
+import { validate } from "uuid";
+
 import { body } from "express-validator";
 import { BadRequestError } from "../errors/bad-request-error";
 import { validateRequest } from "../middlewares/validate-request";
 
 import { Password } from "../services/password";
 import { AppDataSource } from "../data-source";
-import { User } from "../entities/user.entity";
+import { Project, User } from "../entities/user.entity";
+import { ERoleLevel } from "../types/enums";
 
 const router = express.Router();
 
@@ -27,7 +30,7 @@ router.post(
   ],
   validateRequest,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password, adminKey } = req.body;
+    const { email, password, adminKey, projectId } = req.body;
 
     if (
       adminKey !== process.env.USER_SIGNUP_KEY &&
@@ -50,12 +53,28 @@ router.post(
       return next(new BadRequestError("Email in use"));
     }
 
+    /**
+     * SUPERADMINS must be able to create a first account without need of a project, since these are who create projects
+     */
+    let existingProject = undefined;
+    if (role !== "SUPER_ADMIN") {
+      if (!projectId || !validate(projectId)) {
+        return next(new BadRequestError("projectId invalid"));
+      }
+      const projectRepository = AppDataSource.getRepository(Project);
+      existingProject = await projectRepository.findOneBy({ id: projectId });
+
+      if (!existingProject) {
+        return next(new BadRequestError("Project must exist"));
+      }
+    }
     const hashedPassword = await Password.toHash(password);
 
     const user = userRepository.create({
       email,
       password: hashedPassword,
       role,
+      project: existingProject,
     });
     await userRepository.save(user);
 
@@ -72,7 +91,7 @@ router.post(
     // Store it on the session object
     // req.session = { jwt: userJwt }; // redefine this obj because type definitions
 
-    res.status(201).send({ email: user.email, jwt: userJwt });
+    res.status(201).send({ email: user.email, jwt: userJwt, user });
   }
 );
 
