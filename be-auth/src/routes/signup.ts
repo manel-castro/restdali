@@ -11,7 +11,6 @@ import { validateRequest } from "../middlewares/validate-request";
 import { Password } from "../services/password";
 import { AppDataSource } from "../data-source";
 import { Project, User } from "../entities/user.entity";
-import { ERoleLevel } from "../types/enums";
 
 const router = express.Router();
 
