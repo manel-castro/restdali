@@ -11,11 +11,12 @@ import { AppDataSource } from "../data-source";
 import { Project, User } from "../entities/user.entity";
 import { currentUser } from "../middlewares/current-user";
 import { requireAuth } from "../middlewares/require-auth";
+import { ERoleLevel } from "../types/enums";
 
 const router = express.Router();
 
 router.post(
-  "/api/users/projects/create",
+  "/api/users/projects",
   [
     body("projectName")
       .trim()
@@ -41,6 +42,26 @@ router.post(
     await projectRepository.save(newProject);
 
     res.status(201).send({ newProject });
+  }
+);
+
+router.get(
+  "/api/users/projects",
+
+  currentUser,
+  requireAuth,
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    const role = req.currentUser?.role;
+
+    if (role !== ERoleLevel.SUPERADMIN && role !== ERoleLevel.ADMIN) {
+      return next(new BadRequestError("Invalid user role"));
+    }
+
+    const projectRepository = AppDataSource.getRepository(Project);
+    const projects = projectRepository.find();
+
+    res.status(201).send({ projects });
   }
 );
 
