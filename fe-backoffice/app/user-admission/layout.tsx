@@ -4,6 +4,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div style={{ height: "100vh", width: "100vw", display: "flex", alignItems: "center", justifyContent: "center" }}>{children}</div>
+  return (
+    <div style={{ height: "100%", width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
 
+      {children}
+    </div>
+  )
 }

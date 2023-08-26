@@ -31,7 +31,7 @@ export default function RootLayout({
         style={{ display: "flex", justifyContent: "center" }}
       >
         <ContextProvider>
-          <div style={{ padding: 40, maxWidth: 1150, width: "100%" }}>
+          <div style={{ padding: 40, maxWidth: 1150, width: "100%", height: "100vh" }}>
             {children}
           </div>
           <Toaster />
