@@ -25,7 +25,10 @@ router.post(
     const { email, password } = req.body;
     console.log("test");
     const userRepository = AppDataSource.getRepository(User);
-    const existingUser = await userRepository.findOne({ where: { email } });
+    const existingUser = await userRepository.findOne({
+      where: { email },
+      select: { project: { id: true } },
+    });
 
     if (!existingUser) {
       return next(new BadRequestError("Credenciales invalidos"));
@@ -55,13 +58,12 @@ router.post(
     // Store it on the session object
     // req.session = { jwt: userJwt }; // redefine this obj because type definitions
 
-    res
-      .status(200)
-      .send({
-        email: existingUser.email,
-        role: existingUser.role,
-        jwt: userJwt,
-      });
+    res.status(200).send({
+      email: existingUser.email,
+      role: existingUser.role,
+      jwt: userJwt,
+      user: existingUser,
+    });
   }
 );
 

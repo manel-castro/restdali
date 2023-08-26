@@ -5,12 +5,11 @@
 // -  updatedAt DateTime @updatedAt
 
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  OneToMany,
+  Entity,
   JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
 } from "typeorm";
 
 @Entity({
@@ -42,7 +41,7 @@ export class User {
   @Column()
   role: string;
 
-  @ManyToOne(() => Project, (project) => project.id)
+  @ManyToMany(() => Project, (project) => project.id)
   @JoinTable()
   project: Project;
 }

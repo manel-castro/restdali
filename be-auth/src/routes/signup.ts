@@ -68,6 +68,7 @@ router.post(
       }
     }
     const hashedPassword = await Password.toHash(password);
+    console.log("existingProjec: ", existingProject);
 
     const user = userRepository.create({
       email,
@@ -83,6 +84,7 @@ router.post(
         id: user.id,
         email: user.email,
         role,
+        project: existingProject,
       },
       process.env.JWT_KEY!
     );

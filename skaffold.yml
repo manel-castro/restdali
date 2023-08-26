@@ -33,16 +33,16 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
-    - image: manelcastro/fe-backoffice
-      context: ./fe-backoffice
-      docker:
-        dockerfile: Dockerfile.dev
-      sync:
-        manual:
-          - src: "/**/*.ts"
-            dest: .
-          - src: "/**/*.tsx"
-            dest: .
+    # - image: manelcastro/fe-backoffice
+    #   context: ./fe-backoffice
+    #   docker:
+    #     dockerfile: Dockerfile.dev
+    #   sync:
+    #     manual:
+    #       - src: "/**/*.ts"
+    #         dest: .
+    #       - src: "/**/*.tsx"
+    #         dest: .
     - image: manelcastro/fe-client
       context: ./fe-client
       docker:

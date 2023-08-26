@@ -56,7 +56,7 @@ router.get(
     }
 
     const projectRepository = AppDataSource.getRepository(Project);
-    const projects = projectRepository.find();
+    const projects = await projectRepository.find({});
 
     res.status(201).send({ projects });
   }
