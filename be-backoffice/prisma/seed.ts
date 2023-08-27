@@ -6,10 +6,12 @@ async function main() {
       {
         title: "Hero",
         id: "hero-section",
+        project: "localhost",
       },
       {
         title: "Tabs",
         id: "tabs-section",
+        project: "localhost",
       },
     ],
   });

@@ -57,11 +57,12 @@ router.post(
   [
     body("title", "title needed").isString(),
     body("id", "id needed").isString(),
+    body("domain", "domain needed").isString(),
   ],
   requireAuth,
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { title, id } = req.body;
+    const { title, id, domain } = req.body;
     const existingSection = await prisma.section.findMany({
       where: {
         id,
@@ -76,6 +77,7 @@ router.post(
       data: {
         id,
         title,
+        project: domain,
       },
     });
 

@@ -26,6 +26,7 @@ model Field {
 model Section {
   id            String   @id @default(uuid())
   title         String
+  project       String
   initialFields Field[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

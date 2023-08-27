@@ -22,6 +22,9 @@ export class Project {
 
   @Column()
   projectName: string;
+
+  @Column()
+  domain: string;
 }
 
 @Entity({

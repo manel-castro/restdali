@@ -19,12 +19,16 @@ router.post(
       .trim()
       .isLength({ min: 4, max: 20 })
       .withMessage("Projectname must be between 4 and 20"),
+    body("domain")
+      .trim()
+      .isLength({ min: 4, max: 20 })
+      .withMessage("Domain must be between 4 and 20"),
   ],
   currentUser,
   requireAuth,
   validateRequest,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { projectName } = req.body;
+    const { projectName, domain } = req.body;
 
     const role = req.currentUser?.role;
 
@@ -33,8 +37,9 @@ router.post(
     }
 
     const projectRepository = AppDataSource.getRepository(Project);
-    const newProject = await projectRepository.create({
+    const newProject = projectRepository.create({
       projectName,
+      domain,
     });
     await projectRepository.save(newProject);
 
