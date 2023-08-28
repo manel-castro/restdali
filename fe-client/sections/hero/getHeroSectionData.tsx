@@ -5,7 +5,7 @@ import { CMSData, InitialField } from "@/utils/interfaces";
 
 
 export const getHeroSectionData = async (locale: string) => {
-  console.log("locale: ", locale)
+
   const heroData =
     await axiosInstanceBackoffice.get(
       `/api/backoffice/sections/hero-section/fields/${locale}/${window.location.hostname}`
