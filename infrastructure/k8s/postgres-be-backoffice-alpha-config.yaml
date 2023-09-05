@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-be-backoffice-alpha-config
+  labels:
+    app: postgres-be-backoffice-alpha
+data:
+  POSTGRES_DB: postgresdb
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres

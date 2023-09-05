@@ -2,11 +2,13 @@
 import { useLocale } from "next-intl";
 import { HeroSection } from "./HeroSection";
 import { getHeroSectionData } from "./getHeroSectionData";
+import { useRouter } from "next/router";
 
 export default async function Hero() {
   //eslint-disable-next-line
   const locale = useLocale();
   console.log("useLocale().locale: ", locale);
+
 
   const heroData = await getHeroSectionData(locale);
 

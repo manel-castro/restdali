@@ -19,6 +19,7 @@
     "eslint-config-next": "13.4.9",
     "i18next": "^23.2.8",
     "next": "13.4.9",
+    "next-absolute-url": "^1.2.2",
     "next-intl": "^3.0.0-beta.7",
     "postcss": "8.4.25",
     "react": "18.2.0",

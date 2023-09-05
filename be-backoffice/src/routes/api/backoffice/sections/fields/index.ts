@@ -12,21 +12,26 @@ const express = require("express");
 const router = express.Router();
 
 router.get(
-  "/:sectionId/fields/:lang/:domain",
+  "/:sectionId/fields/:lang",
   [
     param("sectionId", "Is badly formatted").isString(),
     param("lang", "Is badly formatted").isString(),
-    param("domain", "Is badly formatted").isString(),
   ],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { sectionId, lang, domain } = req.params;
+    const { sectionId, lang } = req.params;
+
+    console.log("HAPPENED");
+
+    const domain = req.get("host");
+    console.log("Domain: ", domain);
 
     console.log("param lang:", lang);
 
     const fields = await prisma.section.findMany({
       where: {
         id: sectionId,
+        project: domain,
       },
       include: {
         initialFields: {

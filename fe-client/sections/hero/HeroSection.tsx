@@ -6,6 +6,7 @@ import { Container } from "../../components/container.styled";
 import { Description, Title } from "./components/text.styled";
 import { getIsMobile } from "@/utils/isMobile";
 import { getLastWordString } from "@/utils/strings";
+import { useRouter } from 'next/navigation';
 
 export const HeroSection = ({
   title = "Invest better",
@@ -15,6 +16,8 @@ export const HeroSection = ({
   videoSrc = "//marketing.etorostatic.com/cache1/hp/v_251/videos/cover-hp-06.mp4",
 }) => {
   const isMobile = getIsMobile();
+
+
 
   const fractionTitle = getLastWordString(title);
   console.log("fractionTitle: ", fractionTitle);

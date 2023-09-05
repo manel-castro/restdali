@@ -32,6 +32,13 @@ spec:
                 name: be-backoffice-srv
                 port:
                   number: 9002
+          - path: /api/backoffice-alpha
+            pathType: Prefix
+            backend:
+              service:
+                name: be-backoffice-alpha-srv
+                port:
+                  number: 9002
           - path: /backoffice
             pathType: Prefix
             backend:

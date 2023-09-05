@@ -1,5 +1,6 @@
 import createMiddleware from "next-intl/middleware";
 import { locales } from "@/utils/locales";
+import { NextRequest, NextResponse } from "next/server";
 
 export default createMiddleware({
   // A list of all locales that are supported
