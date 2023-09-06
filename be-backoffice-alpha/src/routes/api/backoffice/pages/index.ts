@@ -139,4 +139,108 @@ router.delete(
   }
 );
 
+router.patch(
+  "/pages/:id/addSections",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("sectionIds", "sectionIds is needed").isArray(),
+    check("sectionIds.*", "sectionIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { sectionIds } = req.body;
+    const { id } = req.params;
+
+    console.log("sectionIds: ", sectionIds);
+
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingPage) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    for (const sectionId of sectionIds) {
+      const existingPage = await prisma.section.findFirst({
+        where: {
+          id: sectionId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError("section doesn't exist"));
+      }
+    }
+    for (const sectionId of sectionIds) {
+      await prisma.page.update({
+        where: {
+          id,
+        },
+        data: {
+          sections: { connect: { id: sectionId } },
+        },
+      });
+    }
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/pages/:id/deleteSections",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("sectionIds", "sectionIds is needed").isArray(),
+    check("sectionIds.*", "sectionIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { sectionIds } = req.body;
+    const { id } = req.params;
+
+    console.log("sectionIds: ", sectionIds);
+
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingPage) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    for (const sectionId of sectionIds) {
+      const existingPage = await prisma.section.findFirst({
+        where: {
+          id: sectionId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError("Project doesn't exist"));
+      }
+    }
+    for (const sectionId of sectionIds) {
+      await prisma.page.update({
+        where: {
+          id,
+        },
+        data: {
+          sections: { disconnect: { id: sectionId } },
+        },
+      });
+    }
+    return res.status(204).send();
+  }
+);
+
 export { router as PagesRouter };

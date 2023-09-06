@@ -140,4 +140,156 @@ router.delete(
   }
 );
 
+router.patch(
+  "/projects/:id/addPages",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("pageIds", "pageIds is needed").isArray(),
+    check("pageIds.*", "pageIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { pageIds } = req.body;
+    const { id } = req.params;
+
+    console.log("pageIds: ", pageIds);
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProject) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    for (const pageId of pageIds) {
+      const existingPage = await prisma.page.findFirst({
+        where: {
+          id: pageId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError("Project doesn't exist"));
+      }
+    }
+    for (const pageId of pageIds) {
+      await prisma.project.update({
+        where: {
+          id,
+        },
+        data: {
+          paginas: { connect: { id: pageId } },
+        },
+      });
+    }
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/sections/:id/addFields",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("fieldIds", "fieldIds is needed").isArray(),
+    check("fieldIds.*", "fieldIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { fieldIds } = req.body;
+    const { id } = req.params;
+
+    const existingSection = await prisma.section.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingSection) {
+      return next(new BadRequestError("Section doesn't exist"));
+    }
+
+    for (const fieldId of fieldIds) {
+      const existingPage = await prisma.field.findFirst({
+        where: {
+          id: fieldId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError(" doesn't exist"));
+      }
+    }
+    for (const fieldId of fieldIds) {
+      await prisma.section.update({
+        where: {
+          id,
+        },
+        data: {
+          Fields: { connect: { id: fieldId } },
+        },
+      });
+    }
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/sections/:id/deleteFields",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("fieldIds", "fieldIds is needed").isArray(),
+    check("fieldIds.*", "fieldIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { fieldIds } = req.body;
+    const { id } = req.params;
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProject) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    for (const fieldId of fieldIds) {
+      const existingPage = await prisma.field.findFirst({
+        where: {
+          id: fieldId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError("Project doesn't exist"));
+      }
+    }
+    for (const fieldId of fieldIds) {
+      await prisma.section.update({
+        where: {
+          id,
+        },
+        data: {
+          Fields: { disconnect: { id: fieldId } },
+        },
+      });
+    }
+    return res.status(204).send();
+  }
+);
+
 export { router as SectionsRouter };

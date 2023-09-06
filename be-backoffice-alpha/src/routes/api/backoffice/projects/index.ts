@@ -11,9 +11,25 @@ const express = require("express");
 const router = express.Router();
 
 router.get(
-  "/projects",
+  "/projects/ids",
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
+    const existingProjectIds = await prisma.project.findMany({
+      where: {},
+      select: { id: true },
+    });
+
+    res.send(existingProjectIds);
+  }
+);
+
+router.get(
+  "/projects/:projectId",
+  [param("projectId", "Is badly formatted").isString()],
+  validateRequest,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { projectId } = req.params;
+
     const existingProjects = await prisma.project.findMany({
       where: {},
       include: {
@@ -21,7 +37,9 @@ router.get(
           include: {
             sections: {
               include: {
-                Fields: true,
+                Fields: {
+                  include: { valuesByProject: { where: { projectId } } },
+                },
               },
             },
           },
@@ -192,13 +210,11 @@ router.delete(
 );
 
 router.patch(
-  "/projects/:id/setPages",
+  "/projects/:id/addPages",
   [param("id", "Is badly formatted").isString()],
 
   [
-    check("favicon", "favicon is needed").optional().isString(),
-    check("pageTitle", "pageTitle is needed").optional().isString(),
-    check("pageIds", "pageIds is needed").optional().isArray(),
+    check("pageIds", "pageIds is needed").isArray(),
     check("pageIds.*", "pageIds is needed").isString(),
   ],
 
@@ -206,7 +222,59 @@ router.patch(
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { pageIds, favicon, pageTitle } = req.body;
+    const { pageIds } = req.body;
+    const { id } = req.params;
+
+    console.log("pageIds: ", pageIds);
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProject) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    for (const pageId of pageIds) {
+      const existingPage = await prisma.page.findFirst({
+        where: {
+          id: pageId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError("Project doesn't exist"));
+      }
+    }
+    for (const pageId of pageIds) {
+      await prisma.project.update({
+        where: {
+          id,
+        },
+        data: {
+          paginas: { connect: { id: pageId } },
+        },
+      });
+    }
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/projects/:id/deletePages",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("pageIds", "pageIds is needed").isArray(),
+    check("pageIds.*", "pageIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { pageIds } = req.body;
     const { id } = req.params;
 
     const existingProject = await prisma.project.findFirst({
@@ -229,21 +297,16 @@ router.patch(
         return next(new BadRequestError("Project doesn't exist"));
       }
     }
-
-    await prisma.project.update({
-      where: {
-        id,
-      },
-      data: {
-        generalPageContent: {
-          update: {
-            favicon,
-            pageTitle,
-          },
+    for (const pageId of pageIds) {
+      await prisma.project.update({
+        where: {
+          id,
         },
-      },
-    });
-
+        data: {
+          paginas: { disconnect: { id: pageId } },
+        },
+      });
+    }
     return res.status(204).send();
   }
 );

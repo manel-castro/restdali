@@ -29,7 +29,6 @@ router.post(
   "/fields",
   [
     check("name", "name is needed").isString(),
-    check("sectionId", "sectionId is needed").isString(),
     check("translationsLabel", "translationsLabel is needed").isArray(),
     check("translationsLabel.*", "translationsLabel is needed").isString(),
   ],
@@ -37,44 +36,12 @@ router.post(
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { name, sectionId, translationsLabel, translationsValue } = req.body;
-
-    const existingSection = await prisma.section.findFirst({
-      where: {
-        id: sectionId,
-      },
-    });
-
-    if (!existingSection) {
-      return next(new BadRequestError("sectionId doesn't exist"));
-    }
-
-    const existingFieldInThatSection = await prisma.field.findFirst({
-      where: {
-        Section: {
-          some: {
-            id: sectionId,
-          },
-        },
-        name,
-      },
-    });
-
-    if (existingFieldInThatSection) {
-      return next(
-        new BadRequestError("field name already exists for that section")
-      );
-    }
+    const { name, translationsLabel, translationsValue } = req.body;
 
     await prisma.field.create({
       data: {
         name,
         translationsLabel,
-        Section: {
-          connect: {
-            id: existingSection.id,
-          },
-        },
       },
     });
 
