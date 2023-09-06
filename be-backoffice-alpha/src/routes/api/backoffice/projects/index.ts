@@ -191,4 +191,61 @@ router.delete(
   }
 );
 
+router.patch(
+  "/projects/:id/setPages",
+  [param("id", "Is badly formatted").isString()],
+
+  [
+    check("favicon", "favicon is needed").optional().isString(),
+    check("pageTitle", "pageTitle is needed").optional().isString(),
+    check("pageIds", "pageIds is needed").optional().isArray(),
+    check("pageIds.*", "pageIds is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { pageIds, favicon, pageTitle } = req.body;
+    const { id } = req.params;
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProject) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    for (const pageId of pageIds) {
+      const existingPage = await prisma.page.findFirst({
+        where: {
+          id: pageId,
+        },
+      });
+      if (!existingPage) {
+        return next(new BadRequestError("Project doesn't exist"));
+      }
+    }
+
+    await prisma.project.update({
+      where: {
+        id,
+      },
+      data: {
+        generalPageContent: {
+          update: {
+            favicon,
+            pageTitle,
+          },
+        },
+      },
+    });
+
+    return res.status(204).send();
+  }
+);
+
 export { router as ProjectsRouter };
