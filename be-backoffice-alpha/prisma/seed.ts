@@ -27,6 +27,8 @@ async function main() {
         name: "landing",
         id: "landing1",
         translations: ["landing-es", "landing-en", "landing-fr"],
+        component: "tabbed-page",
+        link: "landing",
       },
     ],
   });
@@ -36,6 +38,7 @@ async function main() {
         name: "top",
         id: "top1",
         translations: ["top-es", "top-en", "top-fr"],
+        component: "header-backoffice-section",
       },
     ],
   });

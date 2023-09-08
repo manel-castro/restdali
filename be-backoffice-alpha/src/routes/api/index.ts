@@ -1,6 +1,6 @@
 import { currentUser } from "./../../middlewares/current-user";
 import { requireAuth } from "./../../middlewares/require-auth";
-import { BackofficeRouter } from "./backoffice";
+import { BackofficeRouter } from "./backoffice-alpha";
 
 const express = require("express");
 

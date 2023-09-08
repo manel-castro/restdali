@@ -32,6 +32,8 @@ model Project {
 model Page {
   id            String    @id @default(uuid())
   name          String
+  link          String
+  component     String
   translations  String[]
   sections      Section[]
   sectionsOrder String[]
@@ -41,6 +43,7 @@ model Page {
 model Section {
   id           String   @id @default(uuid())
   name         String
+  component    String
   translations String[]
   Fields       Field[]
   Page         Page[]

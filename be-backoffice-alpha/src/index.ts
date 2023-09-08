@@ -22,6 +22,22 @@ const start = async () => {
 
   const app = express();
 
+  /**
+   * CORS
+   */
+  // var whitelist = ["http://localhost"];
+  // var corsOptions = {
+  //   origin: function (origin: string, callback: any) {
+  //     if (whitelist.indexOf(origin) !== -1) {
+  //       callback(null, true);
+  //     } else {
+  //       callback(new Error("Not allowed by CORS"));
+  //     }
+  //   },
+  // };
+
+  app.use(cors());
+
   app.use(express.json());
   app.use(
     cookieSession({
@@ -30,8 +46,6 @@ const start = async () => {
       secure: process.env.NODE_ENV !== "test", // test run in plain HTTP, not HTTPS
     })
   );
-
-  app.use(cors());
 
   app.use(ApiRouter);
 

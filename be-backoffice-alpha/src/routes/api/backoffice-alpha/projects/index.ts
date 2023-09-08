@@ -6,6 +6,7 @@ import { prisma } from "../../../../prismaclient";
 import { BadRequestError } from "../../../../errors/bad-request-error";
 import { requireIsSuperAdmin } from "../../../../middlewares/require-role";
 import { currentUser } from "../../../../middlewares/current-user";
+import { getDomain } from "../../../../utils/domains";
 const express = require("express");
 
 const router = express.Router();
@@ -26,19 +27,66 @@ router.get(
 router.get(
   "/projects/:projectId",
   [param("projectId", "Is badly formatted").isString()],
+
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const { projectId } = req.params;
 
-    const existingProjects = await prisma.project.findMany({
-      where: {},
+    const existingProjects = await prisma.project.findFirst({
+      where: { id: projectId },
       include: {
         paginas: {
           include: {
             sections: {
               include: {
                 Fields: {
-                  include: { valuesByProject: { where: { projectId } } },
+                  include: {
+                    valuesByProject: {
+                      where: { projectId: projectId },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res.status(201).send(existingProjects);
+  }
+);
+
+router.get(
+  "/projects",
+
+  validateRequest,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const domain = getDomain(req);
+    console.log("DOMAIN: ", domain);
+
+    const existingProjectId = await prisma.project.findFirst({
+      where: { domain },
+      select: { id: true },
+    });
+
+    if (!existingProjectId) {
+      return next(new BadRequestError("Domain not related with any project"));
+    }
+
+    const existingProjects = await prisma.project.findFirst({
+      where: { domain },
+      include: {
+        paginas: {
+          include: {
+            sections: {
+              include: {
+                Fields: {
+                  include: {
+                    valuesByProject: {
+                      where: { projectId: existingProjectId?.id },
+                    },
+                  },
                 },
               },
             },
@@ -216,13 +264,15 @@ router.patch(
   [
     check("pageIds", "pageIds is needed").isArray(),
     check("pageIds.*", "pageIds is needed").isString(),
+    check("pageOrderIds", "pageOrderIds is needed").isArray(),
+    check("pageOrderIds.*", "pageOrderIds is needed").isString(),
   ],
 
   validateRequest,
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { pageIds } = req.body;
+    const { pageIds, pageOrderIds } = req.body;
     const { id } = req.params;
 
     console.log("pageIds: ", pageIds);
@@ -257,6 +307,14 @@ router.patch(
         },
       });
     }
+    await prisma.project.update({
+      where: {
+        id,
+      },
+      data: {
+        paginasOrder: pageOrderIds,
+      },
+    });
     return res.status(204).send();
   }
 );
@@ -268,13 +326,15 @@ router.patch(
   [
     check("pageIds", "pageIds is needed").isArray(),
     check("pageIds.*", "pageIds is needed").isString(),
+    check("pageOrderIds", "pageOrderIds is needed").isArray(),
+    check("pageOrderIds.*", "pageOrderIds is needed").isString(),
   ],
 
   validateRequest,
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { pageIds } = req.body;
+    const { pageIds, pageOrderIds } = req.body;
     const { id } = req.params;
 
     const existingProject = await prisma.project.findFirst({
@@ -304,6 +364,7 @@ router.patch(
         },
         data: {
           paginas: { disconnect: { id: pageId } },
+          paginasOrder: pageOrderIds,
         },
       });
     }

@@ -12,6 +12,8 @@ export const requireIsSuperAdmin = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("requireIsSuperAdmin");
+
   if (!req.currentUser || req.currentUser.role !== ERoleLevel.SUPERADMIN) {
     return next(new NotAuthorizedError());
   }
