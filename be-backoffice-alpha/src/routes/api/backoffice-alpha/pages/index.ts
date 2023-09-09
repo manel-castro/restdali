@@ -169,6 +169,35 @@ router.delete(
   }
 );
 
+export const connectSectionsInPagePrisma = async ({
+  sectionIds,
+  sectionsOrder,
+  pageId,
+}: {
+  sectionIds: string[];
+  sectionsOrder: string[];
+  pageId: string;
+}) => {
+  for (const sectionId of sectionIds) {
+    await prisma.page.update({
+      where: {
+        id: pageId,
+      },
+      data: {
+        sections: { connect: { id: sectionId } },
+      },
+    });
+  }
+  await prisma.page.update({
+    where: {
+      id: pageId,
+    },
+    data: {
+      sectionsOrder,
+    },
+  });
+};
+
 router.patch(
   "/pages/:id/addSections",
   [param("id", "Is badly formatted").isString()],
@@ -209,17 +238,13 @@ router.patch(
         return next(new BadRequestError("section doesn't exist"));
       }
     }
-    for (const sectionId of sectionIds) {
-      await prisma.page.update({
-        where: {
-          id,
-        },
-        data: {
-          sections: { connect: { id: sectionId } },
-          sectionsOrder,
-        },
-      });
-    }
+
+    await connectSectionsInPagePrisma({
+      pageId: id,
+      sectionIds,
+      sectionsOrder,
+    });
+
     return res.status(204).send();
   }
 );

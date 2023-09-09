@@ -145,6 +145,25 @@ router.delete(
   }
 );
 
+export const connectFieldsInSectionPrisma = async ({
+  fieldIds,
+  sectionId,
+}: {
+  fieldIds: string[];
+  sectionId: string;
+}) => {
+  for (const fieldId of fieldIds) {
+    await prisma.section.update({
+      where: {
+        id: sectionId,
+      },
+      data: {
+        Fields: { connect: { id: fieldId } },
+      },
+    });
+  }
+};
+
 router.patch(
   "/sections/:id/addFields",
   [param("id", "Is badly formatted").isString()],
@@ -181,16 +200,12 @@ router.patch(
         return next(new BadRequestError(" doesn't exist"));
       }
     }
-    for (const fieldId of fieldIds) {
-      await prisma.section.update({
-        where: {
-          id,
-        },
-        data: {
-          Fields: { connect: { id: fieldId } },
-        },
-      });
-    }
+
+    connectFieldsInSectionPrisma({
+      sectionId: id,
+      fieldIds,
+    });
+
     return res.status(204).send();
   }
 );

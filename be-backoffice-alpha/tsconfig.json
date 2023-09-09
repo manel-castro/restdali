@@ -32,8 +32,8 @@
     // "paths": {
     //   "@errors/*": ["src/errors/*"],
     //   "@middlewares/*": ["src/middlewares/*"],
-    //   "@types/*": ["src/types/*"],
     //   "@routes/*": ["src/routes/*"],
+    //   "@types/*": ["src/types/*"],
     //   "@utils/*": ["src/utils/*"],
     //   "@src/*": ["src/*"]
     // } /* Specify a set of entries that re-map imports to additional lookup locations. */,

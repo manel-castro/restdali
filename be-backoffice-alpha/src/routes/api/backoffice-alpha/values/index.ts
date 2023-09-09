@@ -11,29 +11,25 @@ const express = require("express");
 const router = express.Router();
 
 router.get(
-  "/fieldvalues/:projectId",
+  "/values/:projectId",
   [param("projectId", "projectId Is badly formatted").isString()],
 
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const { projectId } = req.params;
 
-    const existingFieldValues = await prisma.fieldValueByProject.findMany({
+    const existingValues = await prisma.fieldValueByProject.findMany({
       where: {
         projectId,
       },
-      // include: {
-      //   Field: true,
-      //   project: true,
-      // },
     });
 
-    return res.status(201).send(existingFieldValues);
+    return res.status(201).send(existingValues);
   }
 );
 
 router.get(
-  "/fieldvalues/:projectId/:fieldId",
+  "/values/:projectId/:fieldId",
   [
     param("projectId", "projectId Is badly formatted").isString(),
     param("fieldId", "fieldId Is badly formatted").isString(),
@@ -43,27 +39,24 @@ router.get(
   async function (req: Request, res: Response, next: NextFunction) {
     const { projectId, fieldId } = req.params;
 
-    const existingFieldValues = await prisma.fieldValueByProject.findMany({
+    const existingValues = await prisma.fieldValueByProject.findMany({
       where: {
         projectId,
         fieldId,
       },
-      // include: {
-      //   Field: true,
-      //   project: true,
-      // },
     });
 
-    return res.status(201).send(existingFieldValues);
+    return res.status(201).send(existingValues);
   }
 );
 
 router.post(
-  "/fieldvalues/:projectId",
-  [param("projectId", "projectId Is badly formatted").isString()],
-
+  "/values/:projectId/:fieldId",
   [
-    check("fieldId", "fieldId is needed").isString(),
+    param("projectId", "projectId Is badly formatted").isString(),
+    param("fieldId", "fieldId Is badly formatted").isString(),
+  ],
+  [
     check("values", "value is needed").isArray(),
     check("values.*", "value is needed").isString(),
   ],
@@ -71,8 +64,8 @@ router.post(
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { projectId } = req.params;
-    const { values, fieldId } = req.body;
+    const { projectId, fieldId } = req.params;
+    const { values } = req.body;
 
     await prisma.fieldValueByProject.create({
       data: {
@@ -87,7 +80,7 @@ router.post(
 );
 
 router.patch(
-  "/fieldvalues/:id",
+  "/values/:id",
   [param("id", "Is badly formatted").isString()],
 
   [
@@ -131,7 +124,7 @@ router.patch(
 );
 
 router.delete(
-  "/fieldvalues/:id",
+  "/values/:id",
   [param("id", "Is badly formatted").isString()],
   validateRequest,
   currentUser,
@@ -158,4 +151,4 @@ router.delete(
   }
 );
 
-export { router as FieldValuesRouter };
+export { router as ValuesRouter };
