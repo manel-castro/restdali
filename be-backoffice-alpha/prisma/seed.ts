@@ -3,12 +3,12 @@ import { connectSectionsInPagePrisma } from "../src/routes/api/backoffice-alpha/
 import { connectFieldsInSectionPrisma } from "../src/routes/api/backoffice-alpha/sections";
 const prisma = new PrismaClient();
 async function main() {
+  await prisma.fieldValueByProject.deleteMany({});
+  await prisma.field.deleteMany({});
+  await prisma.section.deleteMany({});
+  await prisma.page.deleteMany({});
   await prisma.project.deleteMany({});
   await prisma.generalPageContent.deleteMany({});
-  await prisma.page.deleteMany({});
-  await prisma.section.deleteMany({});
-  await prisma.field.deleteMany({});
-  await prisma.fieldValueByProject.deleteMany({});
 
   const PROJECT_ID = "project";
 
