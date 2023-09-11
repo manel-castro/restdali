@@ -46,15 +46,18 @@ model Section {
   component    String
   translations String[]
   Fields       Field[]
+  fieldsOrder  String[]
   Page         Page[]
 }
 
 model Field {
-  id                String                @id @default(uuid())
-  name              String
+  id                   String                @id @default(uuid())
+  name                 String
   // translationsValue String[]
-  translationsLabel String[]
-  valuesByProject   FieldValueByProject[]
+  translationsLabel    String[]
+  valuesByProject      FieldValueByProject[]
+  component            String
+  valuesByProjectOrder String[]
 
   // Project   Project   @relation(fields: [projectId], references: [id])
   // projectId String
@@ -63,7 +66,8 @@ model Field {
 
 model FieldValueByProject {
   id        String   @id @default(uuid())
-  values    String[]
+  values    String[] // for localization
+  name      String
   project   Project  @relation(fields: [projectId], references: [id])
   Field     Field?   @relation(fields: [fieldId], references: [id])
   fieldId   String?

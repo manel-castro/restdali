@@ -1,17 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import { connectSectionsInPagePrisma } from "../src/routes/api/backoffice-alpha/pages";
-import { connectFieldsInSectionPrisma } from "../src/routes/api/backoffice-alpha/sections";
-const prisma = new PrismaClient();
-async function main() {
-  await prisma.fieldValueByProject.deleteMany({});
-  await prisma.field.deleteMany({});
-  await prisma.section.deleteMany({});
-  await prisma.page.deleteMany({});
-  await prisma.project.deleteMany({});
-  await prisma.generalPageContent.deleteMany({});
+import { prisma } from "../../src/prismaclient";
 
-  const PROJECT_ID = "project";
-
+export const LandingSeed = async (projectId: string) => {
   await prisma.generalPageContent.createMany({
     data: [
       {
@@ -25,7 +14,7 @@ async function main() {
   await prisma.project.createMany({
     data: [
       {
-        id: PROJECT_ID,
+        id: projectId,
         domain: "localhost",
         name: "project 1",
         generalPageContentId: "generalPageContent1",
@@ -128,7 +117,7 @@ async function main() {
   for (const pageId of pages) {
     await prisma.project.update({
       where: {
-        id: PROJECT_ID,
+        id: projectId,
       },
       data: {
         paginas: { connect: { id: pageId } },
@@ -138,7 +127,7 @@ async function main() {
 
   await prisma.project.update({
     where: {
-      id: PROJECT_ID,
+      id: projectId,
     },
     data: {
       paginasOrder: pagesOrder,
@@ -175,7 +164,7 @@ async function main() {
       {
         id: "title-value",
         name: "title-value",
-        projectId: PROJECT_ID,
+        projectId: projectId,
         fieldId: fieldIds[0],
         values: ["Backoffice (es)", "Backoffice (en)", "Backoffice (fr)"],
       },
@@ -211,47 +200,38 @@ async function main() {
       {
         id: "mechanismOfResultSaving",
         name: "mechanismOfResultSaving",
-        projectId: PROJECT_ID,
+        projectId: projectId,
         fieldId: fieldIdsForm[0],
         values: ["localstorage", "localstorage", "localstorage"],
       },
       {
         id: "storageKey",
         name: "storageKey",
-        projectId: PROJECT_ID,
+        projectId: projectId,
         fieldId: fieldIdsForm[0],
         values: ["selectedProjectId", "selectedProjectId", "selectedProjectId"],
       },
       {
         id: "navigateToPage",
         name: "navigateToPage",
-        projectId: PROJECT_ID,
+        projectId: projectId,
         fieldId: fieldIdsForm[0],
         values: ["/projects", "/projects", "/projects"],
       },
       {
         id: "button-text",
         name: "button-text",
-        projectId: PROJECT_ID,
+        projectId: projectId,
         fieldId: fieldIdsForm[1],
         values: ["Enviar", "Submit", "Soumettre"],
       },
       {
         id: "inputProjectLabelValue",
         name: "inputProjectLabelValue",
-        projectId: PROJECT_ID,
+        projectId: projectId,
         fieldId: fieldIdsForm[2],
         values: ["ID del proyecto", "Project ID", "ID du projet"],
       },
     ],
   });
-}
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+};

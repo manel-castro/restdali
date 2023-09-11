@@ -30,19 +30,30 @@ router.post(
   "/fields",
   [
     check("name", "name is needed").isString(),
+    check("component", "component is needed").isString(),
     check("translationsLabel", "translationsLabel is needed").isArray(),
     check("translationsLabel.*", "translationsLabel is needed").isString(),
+    check("valuesOrder", "valuesOrder is needed").isArray(),
+    check("valuesOrder.*", "valuesOrder is needed").isString(),
   ],
   validateRequest,
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { name, translationsLabel, translationsValue } = req.body;
+    const {
+      name,
+      component,
+      translationsLabel,
+      valuesOrder,
+      translationsValue,
+    } = req.body;
 
     await prisma.field.create({
       data: {
         name,
         translationsLabel,
+        component,
+        valuesByProjectOrder: valuesOrder,
       },
     });
 
@@ -57,6 +68,8 @@ router.patch(
   [
     check("name", "name is needed").optional(),
     check("pageNameId", "pageNameId is needed").optional(),
+    check("component", "component is needed").optional(),
+
     check("Project", "Project is needed").optional(),
     check("projectId", "projectId is needed").optional(),
     check("PageName", "PageName is needed").optional(),
@@ -71,6 +84,7 @@ router.patch(
     const {
       name,
       pageNameId,
+      component,
       Project,
       projectId,
       PageName,
@@ -99,6 +113,7 @@ router.patch(
 
       data: {
         name: name || existingField.name,
+        component: component || existingField.component,
         translationsLabel: translationsLabel || existingField.translationsLabel,
       },
     });

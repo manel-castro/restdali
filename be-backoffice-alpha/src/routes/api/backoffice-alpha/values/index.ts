@@ -57,6 +57,7 @@ router.post(
     param("fieldId", "fieldId Is badly formatted").isString(),
   ],
   [
+    check("name", "name is needed").isString(),
     check("values", "value is needed").isArray(),
     check("values.*", "value is needed").isString(),
   ],
@@ -65,13 +66,14 @@ router.post(
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     const { projectId, fieldId } = req.params;
-    const { values } = req.body;
+    const { values, name } = req.body;
 
     await prisma.fieldValueByProject.create({
       data: {
         values,
         fieldId,
         projectId,
+        name,
       },
     });
 
@@ -84,6 +86,8 @@ router.patch(
   [param("id", "Is badly formatted").isString()],
 
   [
+    check("name", "name is needed").isString(),
+
     check("values", "value is needed").isArray(),
     check("values.*", "value is needed").isString(),
   ],
@@ -92,7 +96,7 @@ router.patch(
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { values } = req.body;
+    const { values, name } = req.body;
     const { id } = req.params;
 
     const existingFieldValue = await prisma.fieldValueByProject.findFirst({
@@ -116,6 +120,7 @@ router.patch(
 
       data: {
         values: values || existingFieldValue.values,
+        name: name || existingFieldValue.name,
       },
     });
 

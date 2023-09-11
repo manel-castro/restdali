@@ -147,9 +147,11 @@ router.delete(
 
 export const connectFieldsInSectionPrisma = async ({
   fieldIds,
+  fieldsOrder,
   sectionId,
 }: {
   fieldIds: string[];
+  fieldsOrder: string[];
   sectionId: string;
 }) => {
   for (const fieldId of fieldIds) {
@@ -162,6 +164,14 @@ export const connectFieldsInSectionPrisma = async ({
       },
     });
   }
+  await prisma.section.update({
+    where: {
+      id: sectionId,
+    },
+    data: {
+      fieldsOrder,
+    },
+  });
 };
 
 router.patch(
@@ -171,13 +181,15 @@ router.patch(
   [
     check("fieldIds", "fieldIds is needed").isArray(),
     check("fieldIds.*", "fieldIds is needed").isString(),
+    check("fieldsOrder", "fieldsOrder is needed").isArray(),
+    check("fieldsOrder.*", "fieldsOrder is needed").isString(),
   ],
 
   validateRequest,
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { fieldIds } = req.body;
+    const { fieldIds, fieldsOrder } = req.body;
     const { id } = req.params;
 
     const existingSection = await prisma.section.findFirst({
@@ -204,6 +216,7 @@ router.patch(
     connectFieldsInSectionPrisma({
       sectionId: id,
       fieldIds,
+      fieldsOrder,
     });
 
     return res.status(204).send();
@@ -217,13 +230,15 @@ router.patch(
   [
     check("fieldIds", "fieldIds is needed").isArray(),
     check("fieldIds.*", "fieldIds is needed").isString(),
+    check("fieldsOrder", "fieldsOrder is needed").isArray(),
+    check("fieldsOrder.*", "fieldsOrder is needed").isString(),
   ],
 
   validateRequest,
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { fieldIds } = req.body;
+    const { fieldIds, fieldsOrder } = req.body;
     const { id } = req.params;
 
     const existingProject = await prisma.project.findFirst({
@@ -256,6 +271,14 @@ router.patch(
         },
       });
     }
+    await prisma.section.update({
+      where: {
+        id,
+      },
+      data: {
+        fieldsOrder,
+      },
+    });
     return res.status(204).send();
   }
 );
