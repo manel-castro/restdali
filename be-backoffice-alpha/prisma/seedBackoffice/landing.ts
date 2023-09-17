@@ -1,47 +1,8 @@
 import { prisma } from "../../src/prismaclient";
+import { connectSectionsInPagePrisma } from "../../src/routes/api/backoffice-alpha/pages";
+import { connectFieldsInSectionPrisma } from "../../src/routes/api/backoffice-alpha/sections";
 
 export const LandingSeed = async (projectId: string) => {
-  await prisma.generalPageContent.createMany({
-    data: [
-      {
-        favicon: "asdf",
-        pageTitle: "asdf",
-        id: "generalPageContent1",
-      },
-    ],
-  });
-
-  await prisma.project.createMany({
-    data: [
-      {
-        id: projectId,
-        domain: "localhost",
-        name: "project 1",
-        generalPageContentId: "generalPageContent1",
-        languagesForTranslation: ["es", "en", "fr"],
-      },
-    ],
-  });
-
-  await prisma.page.createMany({
-    data: [
-      {
-        name: "landing",
-        id: "projectSelectionPage",
-        translations: ["landing-es", "landing-en", "landing-fr"],
-        component: "vertical-page",
-        link: "",
-      },
-      {
-        name: "projects",
-        id: "projects",
-        translations: ["projects-es", "projects-en", "projects-fr"],
-        component: "tabbed-page",
-        link: "projects",
-      },
-    ],
-  });
-
   await prisma.section.createMany({
     data: [
       {
@@ -109,37 +70,11 @@ export const LandingSeed = async (projectId: string) => {
   });
 
   /**
-   * Add pages to project
-   */
-  const pagesOrder = ["projectSelectionPage", "projects"];
-  const pages = ["projectSelectionPage", "projects"];
-
-  for (const pageId of pages) {
-    await prisma.project.update({
-      where: {
-        id: projectId,
-      },
-      data: {
-        paginas: { connect: { id: pageId } },
-      },
-    });
-  }
-
-  await prisma.project.update({
-    where: {
-      id: projectId,
-    },
-    data: {
-      paginasOrder: pagesOrder,
-    },
-  });
-
-  /**
    * Add sections to page "landing"
    */
   const sectionsOrder = ["header", "form"];
   const sectionIds = ["header", "form"];
-  const pageId = "projectSelectionPage";
+  const pageId = "landing";
 
   await connectSectionsInPagePrisma({
     pageId,

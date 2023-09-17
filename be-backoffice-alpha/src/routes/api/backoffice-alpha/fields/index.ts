@@ -19,6 +19,26 @@ router.get(
       where: {},
       include: {
         Section: true,
+        valuesByProject: true,
+      },
+    });
+
+    return res.status(201).send(existingFields);
+  }
+);
+
+router.get(
+  "/fields/:id",
+  [param("id", "Is badly formatted").isString()],
+
+  validateRequest,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    const existingFields = await prisma.field.findFirst({
+      where: { id },
+      include: {
+        valuesByProject: { select: { values: true, projectId: true } },
       },
     });
 

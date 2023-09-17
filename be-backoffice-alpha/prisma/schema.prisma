@@ -27,6 +27,7 @@ model Project {
   paginasOrder            String[]
   languagesForTranslation String[]
   FieldValueByProject     FieldValueByProject[]
+  layout                  String
 }
 
 model Page {
@@ -38,6 +39,7 @@ model Page {
   sections      Section[]
   sectionsOrder String[]
   projects      Project[]
+  isDisplayMenu Boolean?  @default(true)
 }
 
 model Section {

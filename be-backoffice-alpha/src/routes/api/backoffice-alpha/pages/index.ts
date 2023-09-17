@@ -12,19 +12,46 @@ const express = require("express");
 
 const router = express.Router();
 
-router.get(
-  "/pages",
+router.post(
+  "/pagesByProjectId",
+  [check("id", "id is needed").isString()],
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
-    const existingPages = await prisma.page.findMany({
-      where: {},
-      include: {
-        projects: true,
-        sections: true,
+    const { id: projectId } = req.body;
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+      },
+      select: {
+        paginasOrder: true,
       },
     });
 
-    return res.status(201).send(existingPages);
+    if (!existingProject) {
+      return next(new BadRequestError("project does not exist"));
+    }
+
+    const pages = await prisma.page.findMany({
+      where: {
+        projects: {
+          every: { id: projectId },
+        },
+      },
+      select: {
+        id: true,
+        translations: true,
+        name: true,
+      },
+    });
+
+    const pagesSorted = pages.sort(
+      (a, b) =>
+        existingProject.paginasOrder.indexOf(a.name) -
+        existingProject.paginasOrder.indexOf(b.name)
+    );
+
+    return res.status(201).send(pagesSorted);
   }
 );
 
@@ -40,6 +67,26 @@ router.get(
       },
       include: {
         projects: true,
+        sections: true,
+      },
+    });
+
+    return res.status(201).send(existingPages);
+  }
+);
+
+router.get(
+  "/pages/:id",
+  [param("id", "id is needed").isString()],
+
+  validateRequest,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const existingPages = await prisma.page.findFirst({
+      where: {
+        id,
+      },
+      include: {
         sections: true,
       },
     });

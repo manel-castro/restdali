@@ -4,7 +4,10 @@ import { validateRequest } from "../../../../middlewares/validate-request";
 import { prisma } from "../../../../prismaclient";
 
 import { BadRequestError } from "../../../../errors/bad-request-error";
-import { requireIsSuperAdmin } from "../../../../middlewares/require-role";
+import {
+  requireIsAtLeastAdmin,
+  requireIsSuperAdmin,
+} from "../../../../middlewares/require-role";
 import { currentUser } from "../../../../middlewares/current-user";
 import { getDomain } from "../../../../utils/domains";
 const express = require("express");
@@ -14,10 +17,11 @@ const router = express.Router();
 router.get(
   "/projects/ids",
   validateRequest,
+  requireIsAtLeastAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     const existingProjectIds = await prisma.project.findMany({
       where: {},
-      select: { id: true },
+      select: { id: true, name: true },
     });
 
     res.send(existingProjectIds);
@@ -104,6 +108,7 @@ router.post(
   [
     check("name", "name is needed").isString(),
     check("domain", "domain is needed").isString(),
+    check("layout", "layout is needed").isString(),
     check("paginasOrder", "paginasOrder is needed").isArray(),
     check("paginasOrder.*", "paginasOrder is needed").isString(),
     check("favicon", "favicon is needed").isString(),
@@ -124,6 +129,7 @@ router.post(
     const {
       name,
       domain,
+      layout,
       paginasOrder,
       favicon,
       pageTitle,
@@ -153,6 +159,7 @@ router.post(
       data: {
         name,
         domain,
+        layout,
         paginasOrder,
         languagesForTranslation,
         generalPageContent: {
@@ -168,17 +175,56 @@ router.post(
   }
 );
 
+router.post(
+  "/projects/metadata",
+  [check("id", "id is needed").isString()],
+  validateRequest,
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.body;
+    const project = await prisma.project.findFirst({
+      where: {
+        id: id,
+      },
+      select: {
+        name: true,
+        generalPageContent: true,
+      },
+    });
+
+    if (!project) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    const projectMetadata: { [key: string]: string } = {
+      name: project.name,
+      favicon: project.generalPageContent.favicon,
+      pageTitle: project.generalPageContent.pageTitle,
+    };
+
+    const projectMetadataInputs = Object.keys(projectMetadata).map((key) => {
+      const value = projectMetadata[key];
+      return {
+        fieldName: key,
+        label: key,
+        currentValue: value,
+      };
+    });
+
+    res.status(200).send(projectMetadataInputs);
+  }
+);
+
 router.patch(
   "/projects/:id",
-  [param("id", "Is badly formatted").isString()],
-
+  [param("id", "id is needed").isString()],
   [
     check("name", "name is needed").optional(),
     check("domain", "domain is needed").optional(),
+    check("layout", "layout is needed").optional(),
     check("favicon", "favicon is needed").optional(),
+    check("pageTitle", "pageTitle is needed").optional(),
     check("paginasOrder", "paginasOrder is needed").optional().isArray(),
     check("paginasOrder.*", "paginasOrder is needed").isString(),
-    check("pageTitle", "pageTitle is needed").optional(),
     check("languagesForTranslation", "languagesForTranslation is needed")
       .optional()
       .isArray(),
@@ -191,8 +237,17 @@ router.patch(
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { name, domain, favicon, pageTitle, paginasOrder } = req.body;
     const { id } = req.params;
+    const {
+      name,
+      domain,
+      layout,
+      favicon,
+      pageTitle,
+      paginasOrder,
+      languagesForTranslation,
+    } = req.body;
+    // const { id } = req.params;
 
     const existingProject = await prisma.project.findFirst({
       where: {
@@ -207,7 +262,10 @@ router.patch(
     const newData = {
       name: name || existingProject.name,
       domain: domain || existingProject.domain,
+      layout: layout || existingProject.layout,
       paginasOrder: paginasOrder || existingProject.paginasOrder,
+      languagesForTranslation:
+        languagesForTranslation || existingProject.languagesForTranslation,
     };
 
     await prisma.project.update({

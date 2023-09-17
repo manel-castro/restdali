@@ -14,38 +14,22 @@ const express = require("express");
 const router = express.Router();
 
 router.get(
-  "/generalConfig",
+  "/backoffice-page/projects",
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const domain = getDomain(req);
     console.log("DOMAIN: ", domain);
 
-    const project = await prisma.project.findFirst({
-      where: { domain },
-      include: {
-        generalPageContent: true,
-        paginas: {
-          include: {
-            sections: {
-              include: {
-                Fields: {
-                  include: {
-                    valuesByProject: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+    const projects = await prisma.project.findMany({
+      where: {},
+      select: {
+        id: true,
+        name: true,
       },
     });
 
-    const generalConfig = {
-      project,
-    };
-
-    return res.status(200).send(generalConfig);
+    return res.status(200).send(projects);
   }
 );
 
-export { router as GeneralConfigRouter };
+export { router as BackofficePageRouter };

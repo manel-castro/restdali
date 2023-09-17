@@ -26,6 +26,26 @@ router.get(
   }
 );
 
+router.get(
+  "/sections/:id",
+  [param("id", "id is needed").isString()],
+
+  validateRequest,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    const existingSections = await prisma.section.findFirst({
+      where: { id },
+      include: {
+        Page: true,
+        Fields: true,
+      },
+    });
+
+    return res.status(201).send(existingSections);
+  }
+);
+
 router.post(
   "/sections",
   [
@@ -75,7 +95,8 @@ router.patch(
     check("sections", "sections is needed").optional(),
     check("projectId", "projectId is needed").optional(),
     check("sectionsOrder", "sectionsOrder is needed").optional(),
-    check("translations", "translations is needed").optional(),
+    check("translations", "translations is needed").optional().isArray(),
+    check("translations.*", "translations is needed").optional().isString(),
   ],
 
   validateRequest,
