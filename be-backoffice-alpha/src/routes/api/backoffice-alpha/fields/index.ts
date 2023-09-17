@@ -38,7 +38,9 @@ router.get(
     const existingFields = await prisma.field.findFirst({
       where: { id },
       include: {
-        valuesByProject: { select: { values: true, projectId: true } },
+        valuesByProject: {
+          select: { values: true, projectId: true, name: true, id: true },
+        },
       },
     });
 
@@ -93,8 +95,12 @@ router.patch(
     check("Project", "Project is needed").optional(),
     check("projectId", "projectId is needed").optional(),
     check("PageName", "PageName is needed").optional(),
-    check("translationsLabel", "translationsLabel is needed").optional(),
-    check("translationsValue", "translationsValue is needed").optional(),
+    check("translationsLabel", "translationsLabel is needed")
+      .isArray()
+      .optional(),
+    check("translationsValue.*", "translationsValue is needed")
+      .isString()
+      .optional(),
   ],
 
   validateRequest,

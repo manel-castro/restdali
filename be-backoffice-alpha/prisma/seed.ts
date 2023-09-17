@@ -15,7 +15,7 @@ async function main() {
   await prisma.generalPageContent.createMany({
     data: [
       {
-        favicon: "asdf",
+        favicon: "https://img.icons8.com/?size=256&id=53372&format=png",
         pageTitle: "asdf",
         id: "generalPageContent1",
       },

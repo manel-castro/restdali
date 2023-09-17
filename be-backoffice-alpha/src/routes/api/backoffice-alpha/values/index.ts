@@ -86,10 +86,10 @@ router.patch(
   [param("id", "Is badly formatted").isString()],
 
   [
-    check("name", "name is needed").isString(),
+    check("name", "name is needed").optional().isString(),
 
-    check("values", "value is needed").isArray(),
-    check("values.*", "value is needed").isString(),
+    check("values", "value is needed").optional().isArray(),
+    check("values.*", "value is needed").optional().isString(),
   ],
 
   validateRequest,
