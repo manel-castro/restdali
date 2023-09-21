@@ -14,6 +14,8 @@ const router = express.Router();
  * https://stackoverflow.com/questions/25260818/rest-with-express-js-nested-router
  */
 
+console.log("hello world");
+
 router.use("/backoffice-alpha", ProjectsRouter);
 router.use("/backoffice-alpha", PagesRouter);
 router.use("/backoffice-alpha", SectionsRouter);
