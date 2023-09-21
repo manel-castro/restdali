@@ -26,7 +26,7 @@ async function main() {
     data: [
       {
         id: PROJECT_ID,
-        domain: "localhost",
+        domain: "93.176.137.232",
         name: "project 1",
         generalPageContentId: "generalPageContent1",
         languagesForTranslation: ["es", "en", "fr"],
