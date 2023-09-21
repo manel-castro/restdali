@@ -1,12 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { body, check, param } from "express-validator";
+import { check, param } from "express-validator";
 import { validateRequest } from "../../../../middlewares/validate-request";
 import { prisma } from "../../../../prismaclient";
 
 import { BadRequestError } from "../../../../errors/bad-request-error";
-import { requireIsSuperAdmin } from "../../../../middlewares/require-role";
 import { currentUser } from "../../../../middlewares/current-user";
-import { getDomain } from "../../../../../src/utils/domains";
+import { requireIsSuperAdmin } from "../../../../middlewares/require-role";
 
 const express = require("express");
 
