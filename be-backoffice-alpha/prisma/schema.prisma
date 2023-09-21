@@ -23,8 +23,9 @@ model Project {
   domain                  String                @unique
   generalPageContent      GeneralPageContent    @relation(fields: [generalPageContentId], references: [id])
   generalPageContentId    String
-  paginas                 Page[]
-  paginasOrder            String[]
+  pages                   Page[]
+  pagesOrder              String[]
+  pagesLinks              String[]
   languagesForTranslation String[]
   FieldValueByProject     FieldValueByProject[]
   layout                  String
@@ -33,7 +34,6 @@ model Project {
 model Page {
   id            String    @id @default(uuid())
   name          String
-  link          String
   component     String
   translations  String[]
   sections      Section[]
@@ -47,7 +47,7 @@ model Section {
   name         String
   component    String
   translations String[]
-  Fields       Field[]
+  fields       Field[]
   fieldsOrder  String[]
   Page         Page[]
 }
@@ -71,7 +71,7 @@ model FieldValueByProject {
   values    String[] // for localization
   name      String
   project   Project  @relation(fields: [projectId], references: [id])
-  Field     Field?   @relation(fields: [fieldId], references: [id])
-  fieldId   String?
+  Field     Field   @relation(fields: [fieldId], references: [id])
+  fieldId   String
   projectId String
 }

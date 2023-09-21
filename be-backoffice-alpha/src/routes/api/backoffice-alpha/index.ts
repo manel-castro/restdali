@@ -4,7 +4,6 @@ import { GeneralConfigRouter } from "./generalConfig";
 import { PagesRouter } from "./pages";
 import { ProjectsRouter } from "./projects";
 import { SectionsRouter } from "./sections";
-import { BackofficePageRouter } from "./backoffice-page";
 
 const express = require("express");
 
@@ -21,6 +20,5 @@ router.use("/backoffice-alpha", SectionsRouter);
 router.use("/backoffice-alpha", FieldsRouter);
 router.use("/backoffice-alpha", ValuesRouter);
 router.use("/backoffice-alpha", GeneralConfigRouter);
-router.use("/backoffice-alpha", BackofficePageRouter);
 
 export { router as BackofficeRouter };

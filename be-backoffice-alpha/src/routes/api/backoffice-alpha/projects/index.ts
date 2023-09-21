@@ -10,6 +10,7 @@ import {
 } from "../../../../middlewares/require-role";
 import { currentUser } from "../../../../middlewares/current-user";
 import { getDomain } from "../../../../utils/domains";
+import { randomUUID } from "crypto";
 const express = require("express");
 
 const router = express.Router();
@@ -39,11 +40,12 @@ router.get(
     const existingProjects = await prisma.project.findFirst({
       where: { id: projectId },
       include: {
-        paginas: {
+        generalPageContent: true,
+        pages: {
           include: {
             sections: {
               include: {
-                Fields: {
+                fields: {
                   include: {
                     valuesByProject: {
                       where: { projectId: projectId },
@@ -67,7 +69,7 @@ router.get(
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const domain = getDomain(req);
-    console.log("DOMAIN: ", domain);
+    console.log("DOMAIN2: ", domain);
 
     const existingProjectId = await prisma.project.findFirst({
       where: { domain },
@@ -81,11 +83,11 @@ router.get(
     const existingProjects = await prisma.project.findFirst({
       where: { domain },
       include: {
-        paginas: {
+        pages: {
           include: {
             sections: {
               include: {
-                Fields: {
+                fields: {
                   include: {
                     valuesByProject: {
                       where: { projectId: existingProjectId?.id },
@@ -109,8 +111,8 @@ router.post(
     check("name", "name is needed").isString(),
     check("domain", "domain is needed").isString(),
     check("layout", "layout is needed").isString(),
-    check("paginasOrder", "paginasOrder is needed").isArray(),
-    check("paginasOrder.*", "paginasOrder is needed").isString(),
+    check("pagesOrder", "pagesOrder is needed").isArray(),
+    check("pagesOrder.*", "pagesOrder is needed").isString(),
     check("favicon", "favicon is needed").isString(),
     check("pageTitle", "pageTitle is needed").isString(),
     check(
@@ -130,7 +132,7 @@ router.post(
       name,
       domain,
       layout,
-      paginasOrder,
+      pagesOrder,
       favicon,
       pageTitle,
       languagesForTranslation,
@@ -160,7 +162,7 @@ router.post(
         name,
         domain,
         layout,
-        paginasOrder,
+        pagesOrder,
         languagesForTranslation,
         generalPageContent: {
           create: {
@@ -223,8 +225,10 @@ router.patch(
     check("layout", "layout is needed").optional(),
     check("favicon", "favicon is needed").optional(),
     check("pageTitle", "pageTitle is needed").optional(),
-    check("paginasOrder", "paginasOrder is needed").optional().isArray(),
-    check("paginasOrder.*", "paginasOrder is needed").isString(),
+    check("pagesLinks", "pagesLinks is needed").optional().isArray(),
+    check("pagesLinks.*", "pagesLinks is needed").optional().isString(),
+    check("pagesOrder", "pagesOrder is needed").optional().isArray(),
+    check("pagesOrder.*", "pagesOrder is needed").optional().isString(),
     check("languagesForTranslation", "languagesForTranslation is needed")
       .optional()
       .isArray(),
@@ -244,7 +248,8 @@ router.patch(
       layout,
       favicon,
       pageTitle,
-      paginasOrder,
+      pagesLinks,
+      pagesOrder,
       languagesForTranslation,
     } = req.body;
     // const { id } = req.params;
@@ -259,11 +264,26 @@ router.patch(
       return next(new BadRequestError("Project doesn't exist"));
     }
 
+    if (domain) {
+      if (domain !== existingProject.domain) {
+        const existingProjectByDomain = await prisma.project.findFirst({
+          where: {
+            domain,
+          },
+        });
+
+        if (existingProjectByDomain) {
+          return next(new BadRequestError("Domain in use"));
+        }
+      }
+    }
+
     const newData = {
       name: name || existingProject.name,
       domain: domain || existingProject.domain,
       layout: layout || existingProject.layout,
-      paginasOrder: paginasOrder || existingProject.paginasOrder,
+      pagesLinks: pagesLinks || existingProject.pagesLinks,
+      pagesOrder: pagesOrder || existingProject.pagesOrder,
       languagesForTranslation:
         languagesForTranslation || existingProject.languagesForTranslation,
     };
@@ -361,7 +381,7 @@ router.patch(
           id,
         },
         data: {
-          paginas: { connect: { id: pageId } },
+          pages: { connect: { id: pageId } },
         },
       });
     }
@@ -370,7 +390,7 @@ router.patch(
         id,
       },
       data: {
-        paginasOrder: pageOrderIds,
+        pagesOrder: pageOrderIds,
       },
     });
     return res.status(204).send();
@@ -421,11 +441,106 @@ router.patch(
           id,
         },
         data: {
-          paginas: { disconnect: { id: pageId } },
-          paginasOrder: pageOrderIds,
+          pages: { disconnect: { id: pageId } },
+          pagesOrder: pageOrderIds,
         },
       });
     }
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/projects/:id/addNewPage",
+  [param("id", "Is badly formatted").isString()],
+  [check("id", "Is badly formatted").isString()],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { id: pageId } = req.body;
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProject) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        id: pageId,
+      },
+    });
+
+    if (!existingPage) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    await prisma.project.update({
+      where: {
+        id,
+      },
+      data: {
+        pages: { connect: { id: pageId } },
+        pagesOrder: [...existingProject.pagesOrder, pageId],
+      },
+    });
+
+    return res.status(204).send();
+  }
+);
+
+router.delete(
+  "/projects/:id/deletePage/:pageId",
+  [
+    param("id", "Is badly formatted").isString(),
+    param("pageId", "pageId is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id, pageId } = req.params;
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProject) {
+      return next(new BadRequestError("Project doesn't exist"));
+    }
+
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        id: pageId,
+      },
+    });
+
+    if (!existingPage) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    await prisma.project.update({
+      where: {
+        id,
+      },
+      data: {
+        pages: { disconnect: { id: pageId } },
+        pagesOrder: [
+          ...existingProject.pagesOrder.filter((item) => item !== pageId),
+        ],
+      },
+    });
+
     return res.status(204).send();
   }
 );

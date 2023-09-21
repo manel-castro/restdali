@@ -16,7 +16,7 @@ async function main() {
     data: [
       {
         favicon: "https://img.icons8.com/?size=256&id=53372&format=png",
-        pageTitle: "asdf",
+        pageTitle: "Backoffice",
         id: "generalPageContent1",
       },
     ],
@@ -31,6 +31,23 @@ async function main() {
         generalPageContentId: "generalPageContent1",
         languagesForTranslation: ["es", "en", "fr"],
         layout: "user-layout",
+        pagesOrder: ["landing", "projects", "projectItem"],
+        pagesLinks: ["", "projects", "projects/:id"],
+      },
+    ],
+  });
+
+  await prisma.project.createMany({
+    data: [
+      {
+        id: PROJECT_ID + 2,
+        domain: "localhost2",
+        name: "project 2",
+        generalPageContentId: "generalPageContent1",
+        languagesForTranslation: ["es", "en", "fr"],
+        layout: "user-layout",
+        pagesOrder: [],
+        pagesLinks: [],
       },
     ],
   });
@@ -42,21 +59,21 @@ async function main() {
         id: "landing",
         translations: ["landing-es", "landing-en", "landing-fr"],
         component: "vertical-page",
-        link: "",
+        // link: "",
       },
       {
         name: "projects",
         id: "projects",
         translations: ["projects-es", "projects-en", "projects-fr"],
         component: "vertical-page",
-        link: "projects",
+        // link: "projects",
       },
       {
         name: "projectItem",
         id: "projectItem",
         translations: ["projectItem-es", "projectItem-en", "projectItem-fr"],
         component: "tabbed-page",
-        link: "projects/:id",
+        // link: "projects/:id",
         isDisplayMenu: false,
       },
     ],
@@ -74,7 +91,7 @@ async function main() {
         id: PROJECT_ID,
       },
       data: {
-        paginas: { connect: { id: pageId } },
+        pages: { connect: { id: pageId } },
       },
     });
   }
@@ -84,7 +101,7 @@ async function main() {
       id: PROJECT_ID,
     },
     data: {
-      paginasOrder: pagesOrder,
+      pagesOrder: pagesOrder,
     },
   });
 

@@ -24,7 +24,7 @@ router.post(
         id: projectId,
       },
       select: {
-        paginasOrder: true,
+        pagesOrder: true,
       },
     });
 
@@ -47,8 +47,8 @@ router.post(
 
     const pagesSorted = pages.sort(
       (a, b) =>
-        existingProject.paginasOrder.indexOf(a.name) -
-        existingProject.paginasOrder.indexOf(b.name)
+        existingProject.pagesOrder.indexOf(a.name) -
+        existingProject.pagesOrder.indexOf(b.name)
     );
 
     return res.status(201).send(pagesSorted);
@@ -60,11 +60,7 @@ router.get(
   validateRequest,
   async function (req: Request, res: Response, next: NextFunction) {
     const existingPages = await prisma.page.findMany({
-      where: {
-        projects: {
-          every: { domain: { equals: getDomain(req) } },
-        },
-      },
+      where: {},
       include: {
         projects: true,
         sections: true,
@@ -99,7 +95,6 @@ router.post(
   "/pages",
   [
     check("name", "name is needed").isString(),
-    check("link", "link is needed").isString(),
     check("component", "component is needed").isString(),
 
     check("translations", "translations is needed").isArray(),
@@ -125,12 +120,33 @@ router.post(
       data: {
         name,
         translations,
-        link,
+
         component,
       },
     });
 
-    return res.status(201).send();
+    return res.status(201).send({ id: page.id });
+  }
+);
+
+router.post(
+  "/pages/addNew",
+  [],
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const generalNewpage = {
+      name: "new page",
+      translations: ["translations"],
+
+      component: "text",
+    };
+    const page = await prisma.page.create({
+      data: generalNewpage,
+    });
+
+    return res.status(201).send({ id: page.id });
   }
 );
 
@@ -144,7 +160,8 @@ router.patch(
     check("sections", "sections is needed").optional(),
     check("component", "component is needed").optional(),
     check("projectId", "projectId is needed").optional(),
-    check("sectionsOrder", "sectionsOrder is needed").optional(),
+    check("sectionsOrder", "sectionsOrder is needed").isArray().optional(),
+    check("sectionsOrder.*", "sectionsOrder is needed").isString().optional(),
     check("translations", "translations is needed").optional(),
   ],
 
@@ -176,8 +193,8 @@ router.patch(
       },
       data: {
         name: name || existingPage.name,
-        projects: projects || existingPage.projects,
-        sections: sections || existingPage.sections,
+        // projects: projects || existingPage.projects,
+        // sections: sections || existingPage.sections,
         sectionsOrder: sectionsOrder || existingPage.sectionsOrder,
         translations: translations || existingPage.translations,
         component: component || existingPage.component,
@@ -347,6 +364,101 @@ router.patch(
         },
       });
     }
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/pages/:id/addNewSection",
+  [param("id", "Is badly formatted").isString()],
+  [check("id", "Is badly formatted").isString()],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { id: sectionId } = req.body;
+
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingPage) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    const existingSection = await prisma.section.findFirst({
+      where: {
+        id: sectionId,
+      },
+    });
+
+    if (!existingSection) {
+      return next(new BadRequestError("section doesn't exist"));
+    }
+
+    await prisma.page.update({
+      where: {
+        id,
+      },
+      data: {
+        sections: { connect: { id: sectionId } },
+        sectionsOrder: [...existingPage.sectionsOrder, sectionId],
+      },
+    });
+
+    return res.status(204).send();
+  }
+);
+
+router.delete(
+  "/pages/:id/deleteSection/:sectionId",
+  [
+    param("id", "Is badly formatted").isString(),
+    param("sectionId", "pageId is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id, sectionId } = req.params;
+
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingPage) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    const existingSection = await prisma.section.findFirst({
+      where: {
+        id: sectionId,
+      },
+    });
+
+    if (!existingSection) {
+      return next(new BadRequestError("Section doesn't exist"));
+    }
+
+    await prisma.page.update({
+      where: {
+        id,
+      },
+      data: {
+        sections: { disconnect: { id: sectionId } },
+        sectionsOrder: [
+          ...existingPage.sectionsOrder.filter((item) => item !== sectionId),
+        ],
+      },
+    });
+
     return res.status(204).send();
   }
 );

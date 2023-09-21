@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: be-backoffice-alpha-alpha-depl
+  name: be-backoffice-alpha-depl
 spec:
   replicas: 1
   selector:

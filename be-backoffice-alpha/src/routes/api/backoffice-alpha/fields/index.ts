@@ -83,6 +83,27 @@ router.post(
   }
 );
 
+router.post(
+  "/fields/addNew",
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const generalNewField = {
+      name: "new field",
+      translationsLabel: ["translation"],
+      component: "text",
+      valuesByProjectOrder: [""],
+    };
+
+    await prisma.field.create({
+      data: generalNewField,
+    });
+
+    return res.status(201).send();
+  }
+);
+
 router.patch(
   "/fields/:id",
   [param("id", "Is badly formatted").isString()],

@@ -3,6 +3,7 @@ import { validateRequest } from "../../../../middlewares/validate-request";
 import { prisma } from "../../../../prismaclient";
 
 import { getDomain } from "../../../../utils/domains";
+import { BadRequestError } from "../../../../errors/bad-request-error";
 
 const express = require("express");
 
@@ -15,18 +16,29 @@ router.get(
     const domain = getDomain(req);
     console.log("DOMAIN: ", domain);
 
+    const existingProjectId = await prisma.project.findFirst({
+      where: { domain },
+      select: { id: true },
+    });
+
+    if (!existingProjectId) {
+      return next(new BadRequestError("Domain not related with any project"));
+    }
+
     const project = await prisma.project.findFirst({
       where: { domain },
 
       include: {
         generalPageContent: true,
-        paginas: {
+        pages: {
           include: {
             sections: {
               include: {
-                Fields: {
+                fields: {
                   include: {
-                    valuesByProject: true,
+                    valuesByProject: {
+                      where: { projectId: existingProjectId?.id },
+                    },
                   },
                 },
               },

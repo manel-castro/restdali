@@ -18,7 +18,7 @@ router.get(
       where: {},
       include: {
         Page: true,
-        Fields: true,
+        fields: true,
       },
     });
 
@@ -38,7 +38,7 @@ router.get(
       where: { id },
       include: {
         Page: true,
-        Fields: true,
+        fields: true,
       },
     });
 
@@ -84,6 +84,26 @@ router.post(
   }
 );
 
+router.post(
+  "/sections/addNew",
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const generalNewSection = {
+      name: "new section",
+      translations: ["translation"],
+      component: "text",
+    };
+
+    const section = await prisma.section.create({
+      data: generalNewSection,
+    });
+
+    return res.status(201).send();
+  }
+);
+
 router.patch(
   "/sections/:id",
   [param("id", "Is badly formatted").isString()],
@@ -92,9 +112,9 @@ router.patch(
     check("name", "name is needed").optional(),
     check("component", "component is needed").optional(),
     check("project", "project is needed").optional(),
-    check("sections", "sections is needed").optional(),
     check("projectId", "projectId is needed").optional(),
-    check("sectionsOrder", "sectionsOrder is needed").optional(),
+    check("fieldsOrder", "fieldsOrder is needed").isArray().optional(),
+    check("fieldsOrder.*", "fieldsOrder is needed").isString().optional(),
     check("translations", "translations is needed").optional().isArray(),
     check("translations.*", "translations is needed").optional().isString(),
   ],
@@ -103,8 +123,7 @@ router.patch(
   currentUser,
   requireIsSuperAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
-    const { name, component, fields, page, pageNameId, translations } =
-      req.body;
+    const { name, component, translations } = req.body;
     const { id } = req.params;
 
     const existingSection = await prisma.section.findFirst({
@@ -112,7 +131,7 @@ router.patch(
         id,
       },
       include: {
-        Fields: true,
+        fields: true,
         Page: true,
       },
     });
@@ -127,8 +146,6 @@ router.patch(
       },
       data: {
         name: name || existingSection.name,
-        Fields: fields || existingSection.Fields,
-        Page: page || existingSection.Page,
         translations: translations || existingSection.translations,
         component: component || existingSection.component,
       },
@@ -181,7 +198,7 @@ export const connectFieldsInSectionPrisma = async ({
         id: sectionId,
       },
       data: {
-        Fields: { connect: { id: fieldId } },
+        fields: { connect: { id: fieldId } },
       },
     });
   }
@@ -288,7 +305,7 @@ router.patch(
           id,
         },
         data: {
-          Fields: { disconnect: { id: fieldId } },
+          fields: { disconnect: { id: fieldId } },
         },
       });
     }
@@ -300,6 +317,101 @@ router.patch(
         fieldsOrder,
       },
     });
+    return res.status(204).send();
+  }
+);
+
+router.patch(
+  "/sections/:id/addNewField",
+  [param("id", "Is badly formatted").isString()],
+  [check("id", "Is badly formatted").isString()],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { id: fieldId } = req.body;
+
+    const existingSection = await prisma.section.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingSection) {
+      return next(new BadRequestError("Section doesn't exist"));
+    }
+
+    const existingField = await prisma.field.findFirst({
+      where: {
+        id: fieldId,
+      },
+    });
+
+    if (!existingField) {
+      return next(new BadRequestError("Field doesn't exist"));
+    }
+
+    await prisma.section.update({
+      where: {
+        id,
+      },
+      data: {
+        fields: { connect: { id: fieldId } },
+        fieldsOrder: [...existingSection.fieldsOrder, fieldId],
+      },
+    });
+
+    return res.status(204).send();
+  }
+);
+
+router.delete(
+  "/sections/:id/deleteField/:fieldId",
+  [
+    param("id", "Is badly formatted").isString(),
+    param("fieldId", "pageId is needed").isString(),
+  ],
+
+  validateRequest,
+  currentUser,
+  requireIsSuperAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const { id, fieldId } = req.params;
+
+    const existingSection = await prisma.section.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingSection) {
+      return next(new BadRequestError("Page doesn't exist"));
+    }
+
+    const existingField = await prisma.field.findFirst({
+      where: {
+        id: fieldId,
+      },
+    });
+
+    if (!existingField) {
+      return next(new BadRequestError("Section doesn't exist"));
+    }
+
+    await prisma.section.update({
+      where: {
+        id,
+      },
+      data: {
+        fields: { disconnect: { id: fieldId } },
+        fieldsOrder: [
+          ...existingSection.fieldsOrder.filter((item) => item !== fieldId),
+        ],
+      },
+    });
+
     return res.status(204).send();
   }
 );

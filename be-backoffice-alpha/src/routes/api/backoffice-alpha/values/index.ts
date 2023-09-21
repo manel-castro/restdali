@@ -68,12 +68,28 @@ router.post(
     const { projectId, fieldId } = req.params;
     const { values, name } = req.body;
 
-    await prisma.fieldValueByProject.create({
+    const newValue = await prisma.fieldValueByProject.create({
       data: {
         values,
         fieldId,
         projectId,
         name,
+      },
+      include: {
+        Field: true,
+      },
+    });
+
+    const valuesOrderAddedValue = [
+      newValue.id,
+      ...newValue.Field.valuesByProjectOrder,
+    ];
+    await prisma.field.update({
+      where: {
+        id: newValue.fieldId,
+      },
+      data: {
+        valuesByProjectOrder: valuesOrderAddedValue,
       },
     });
 
@@ -141,6 +157,9 @@ router.delete(
       where: {
         id,
       },
+      include: {
+        Field: true,
+      },
     });
 
     if (!existingFieldValue) {
@@ -149,6 +168,20 @@ router.delete(
     await prisma.fieldValueByProject.delete({
       where: {
         id,
+      },
+    });
+
+    const valuesOrderRemovedDeletedValue = [
+      ...existingFieldValue.Field.valuesByProjectOrder.filter(
+        (valueId) => valueId !== id
+      ),
+    ];
+    await prisma.field.update({
+      where: {
+        id: existingFieldValue.fieldId,
+      },
+      data: {
+        valuesByProjectOrder: valuesOrderRemovedDeletedValue,
       },
     });
 
